@@ -1070,7 +1070,8 @@ document.getElementById("gistSyncBtn")?.addEventListener("click", async () => {
   // Auto-save inputs so user doesn't have to remember "Save & connect" first.
   const tokenInput = document.getElementById("gistToken")?.value.trim() || "";
   const idInput = document.getElementById("gistId")?.value.trim() || "";
-  if (tokenInput || idInput) setGistConfig({ token: tokenInput, gistId: idInput });
+  if (tokenInput || idInput)
+    setGistConfig({ token: tokenInput, gistId: idInput });
   const { token } = getGistConfig();
   if (!token) return appAlert("Save your GitHub token first.");
   try {
@@ -1089,7 +1090,8 @@ document.getElementById("gistPullBtn")?.addEventListener("click", async () => {
   // Auto-save inputs so user doesn't have to remember "Save & connect" first.
   const tokenInput = document.getElementById("gistToken")?.value.trim() || "";
   const idInput = document.getElementById("gistId")?.value.trim() || "";
-  if (tokenInput || idInput) setGistConfig({ token: tokenInput, gistId: idInput });
+  if (tokenInput || idInput)
+    setGistConfig({ token: tokenInput, gistId: idInput });
   // Reflect the normalized Gist ID back into the input (handles URL paste).
   const idEl0 = document.getElementById("gistId");
   if (idEl0) idEl0.value = getGistConfig().gistId || "";
@@ -1119,19 +1121,99 @@ document.getElementById("gistPullBtn")?.addEventListener("click", async () => {
     updateSyncStatus();
   }
 });
-document.getElementById("gistDisableBtn")?.addEventListener("click", async () => {
-  const ok = await appConfirm(
-    "Disconnect cloud sync? Your local data is unaffected.",
-    { okText: "Disconnect" },
-  );
-  if (!ok) return;
-  setGistConfig({ token: "", gistId: "" });
-  const t = document.getElementById("gistToken");
-  const i = document.getElementById("gistId");
-  if (t) t.value = "";
-  if (i) i.value = "";
-  flash("Cloud sync disconnected.");
-});
+document
+  .getElementById("gistDisableBtn")
+  ?.addEventListener("click", async () => {
+    const ok = await appConfirm(
+      "Disconnect cloud sync? Your local data is unaffected.",
+      { okText: "Disconnect" },
+    );
+    if (!ok) return;
+    setGistConfig({ token: "", gistId: "" });
+    const t = document.getElementById("gistToken");
+    const i = document.getElementById("gistId");
+    if (t) t.value = "";
+    if (i) i.value = "";
+    flash("Cloud sync disconnected.");
+  });
+
+// One-time setup link: encode current token + gist ID in URL hash and copy.
+// The hash fragment is NEVER sent to servers (so no logs, no analytics, no
+// CDN, no Pages access log will ever see it). On the receiving device the
+// app reads it once, saves to localStorage, then strips it from the URL.
+document
+  .getElementById("gistShareLinkBtn")
+  ?.addEventListener("click", async () => {
+    const { token, gistId } = getGistConfig();
+    if (!token || !gistId) {
+      return appAlert(
+        "Connect this device first (Save & connect, then Push now) so a Gist ID exists.",
+      );
+    }
+    const url = buildSetupLink({ token, gistId });
+    try {
+      await navigator.clipboard.writeText(url);
+      flash("🔗 Setup link copied. Send it to yourself privately.");
+    } catch {
+      // Older iOS / restricted contexts may block async clipboard — show the
+      // URL in a modal so the user can long-press to copy.
+      await appAlert(
+        "Couldn't auto-copy. Long-press to select and copy:\n\n" + url,
+      );
+    }
+    await appConfirm(
+      "⚠️ Treat this link like a password.\n\n" +
+        "Anyone with this link can read AND overwrite your HouseCart data " +
+        "(they can't access anything else in your GitHub account — the token " +
+        "is scoped to gists only).\n\n" +
+        "Send it via a private channel (Signal, iMessage, AirDrop). After " +
+        "the other device opens it, the link is consumed and HouseCart " +
+        "rewrites the URL to remove the secret.",
+      { okText: "Got it", cancelText: "" },
+    );
+  });
+
+function buildSetupLink({ token, gistId }) {
+  // Lightweight obfuscation so the link doesn't read as obviously a token
+  // when glanced at. NOT cryptographic — anyone determined can decode it.
+  const payload = JSON.stringify({ t: token, g: gistId, v: 1 });
+  const b64 = btoa(unescape(encodeURIComponent(payload)))
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+  // Use the hash fragment, NOT the query string, so the secret is never
+  // sent to any server (browsers strip fragments from network requests).
+  const base = `${location.origin}${location.pathname}`;
+  return `${base}#hc=${b64}`;
+}
+
+function consumeSetupLinkFromUrl() {
+  const hash = location.hash || "";
+  const m = hash.match(/(?:^#|[#&])hc=([A-Za-z0-9_-]+)/);
+  if (!m) return false;
+  try {
+    let b64 = m[1].replace(/-/g, "+").replace(/_/g, "/");
+    while (b64.length % 4) b64 += "=";
+    const json = decodeURIComponent(escape(atob(b64)));
+    const data = JSON.parse(json);
+    if (!data || !data.t || !data.g) return false;
+    setGistConfig({ token: data.t, gistId: data.g });
+    flash("☁️ Cloud sync configured from setup link.");
+    return true;
+  } catch (e) {
+    console.warn("Failed to parse setup link", e);
+    return false;
+  } finally {
+    // ALWAYS strip the hash so the secret isn't sitting in the URL bar,
+    // browser history, screenshots, or shared via "Copy current URL".
+    try {
+      history.replaceState(null, "", location.pathname + location.search);
+    } catch {
+      location.hash = "";
+    }
+  }
+}
+
 document.getElementById("saveKeyBtn").addEventListener("click", () => {
   const k = document.getElementById("apiKey").value.trim();
   if (k) {
@@ -2451,6 +2533,9 @@ renderAll();
   // GIST_* constants used by getGistConfig) have been initialized. Calling
   // this earlier would hit the temporal dead zone.
   try {
+    // If we were opened from a setup link (#hc=...), consume it FIRST so
+    // the UI shows the imported token/Gist ID and the launch pull uses it.
+    consumeSetupLinkFromUrl();
     loadCloudSettingsUI();
   } catch (e) {
     console.warn("Cloud settings UI init failed", e);
