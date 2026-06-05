@@ -175,6 +175,8 @@ header h1 { margin: 0; font-size: 1.6rem; }
   border-radius: 12px; padding: 1rem; cursor: pointer;
   transition: transform 0.15s, border-color 0.15s;
   display: flex; flex-direction: column; gap: 0.4rem;
+  /* equal-height cards in a row so action buttons align at the bottom */
+  align-self: stretch;
 }
 .card:hover { transform: translateY(-2px); border-color: var(--accent); }
 .card.urgent { border-left: 4px solid var(--bad); }
@@ -205,7 +207,7 @@ header h1 { margin: 0; font-size: 1.6rem; }
 .card .meta span { background: var(--panel-2); padding: 0.15rem 0.5rem; border-radius: 999px; }
 .card .related { font-size: 0.78rem; color: var(--accent-2); font-style: italic; }
 .card-actions {
-  display: flex; gap: 0.4rem; margin-top: 0.5rem; flex-wrap: wrap;
+  display: flex; gap: 0.4rem; margin-top: auto; padding-top: 0.5rem; flex-wrap: wrap;
 }
 /* Each card action is a small ghost-style pill; .ca-primary marks the key CTA */
 .card-actions .ca {
