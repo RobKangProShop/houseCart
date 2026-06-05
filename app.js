@@ -702,10 +702,10 @@ function makeCard(item) {
     ${item.inTrip ? `<div class="in-trip-badge">🛍️ in next trip</div>` : ""}
     ${item.notes ? `<div class="meta"><span>📝 ${escapeHtml(item.notes)}</span></div>` : ""}
     <div class="card-actions">
-      <button data-act="bought">✓ Bought</button>
-      <button data-act="queue">${item.inTrip ? "− Remove" : "+ Trip"}</button>
-      <button data-act="dup" title="Duplicate as a new active item">⧉</button>
-      <button data-act="edit">Edit</button>
+      <button class="ca ca-bought" data-act="bought">✓ Bought</button>
+      <button class="ca ca-trip${item.inTrip ? " queued" : ""}" data-act="queue">${item.inTrip ? "✕ Remove" : "+ Trip"}</button>
+      <button class="ca ca-icon" data-act="dup" title="Duplicate as a new active item" aria-label="Duplicate">⧉</button>
+      <button class="ca" data-act="edit">Edit</button>
     </div>
   `;
   div.querySelector('[data-act="bought"]').addEventListener("click", (e) => {
@@ -2070,8 +2070,8 @@ function renderTodayList(rootId, items, emptyMsg) {
       ${tags ? `<span class="meta-tag">${tags}</span>` : ""}
       ${i.cost ? `<span class="cost-tag">$${i.cost.toFixed(2)}</span>` : ""}
       <span class="row-actions">
-        <button data-act="bought" title="Mark bought">✓</button>
-        <button data-act="queue" class="${i.inTrip ? "queued" : ""}" title="${i.inTrip ? "Remove from trip" : "Add to trip"}">${i.inTrip ? "🛍️" : "+"}</button>
+        <button data-act="bought" class="bought-now" title="Mark bought">✓ Bought</button>
+        <button data-act="queue" class="${i.inTrip ? "queued" : ""}" title="${i.inTrip ? "Remove from trip" : "Add to trip"}">${i.inTrip ? "✕ Trip" : "+ Trip"}</button>
       </span>
     `;
     row.querySelector('[data-act="bought"]').addEventListener("click", (e) => {

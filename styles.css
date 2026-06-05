@@ -205,15 +205,29 @@ header h1 { margin: 0; font-size: 1.6rem; }
 .card .meta span { background: var(--panel-2); padding: 0.15rem 0.5rem; border-radius: 999px; }
 .card .related { font-size: 0.78rem; color: var(--accent-2); font-style: italic; }
 .card-actions {
-  display: flex; gap: 0.4rem; margin-top: 0.4rem;
+  display: flex; gap: 0.4rem; margin-top: 0.5rem; flex-wrap: wrap;
 }
-.card-actions button {
-  flex: 1; background: var(--panel-2); color: var(--text);
+/* Each card action is a small ghost-style pill; .ca-primary marks the key CTA */
+.card-actions .ca {
+  flex: 1; min-height: 36px;
+  background: var(--panel-2); color: var(--muted);
   border: 1px solid var(--border); border-radius: 6px;
-  padding: 0.35rem; font-size: 0.8rem; cursor: pointer;
+  padding: 0.3rem 0.5rem; font-size: 0.82rem; font-weight: 600;
+  cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s;
+  white-space: nowrap;
 }
-.card-actions button:hover { background: var(--accent); color: #0c1322; border-color: var(--accent); }
-.card-actions button.bought { background: var(--good); color: #052e1a; border-color: var(--good); }
+.card-actions .ca:hover { background: var(--panel); color: var(--text); border-color: var(--muted); }
+/* "✓ Bought" — primary green action */
+.card-actions .ca-bought {
+  background: rgba(74,222,128,0.12); color: var(--good); border-color: rgba(74,222,128,0.35);
+}
+.card-actions .ca-bought:hover { background: var(--good); color: #052e1a; border-color: var(--good); }
+/* "+ Trip" — queued state */
+.card-actions .ca-trip { color: var(--accent-2); border-color: rgba(129,140,248,0.3); }
+.card-actions .ca-trip:hover { background: rgba(129,140,248,0.18); color: var(--accent-2); border-color: var(--accent-2); }
+.card-actions .ca-trip.queued { background: rgba(129,140,248,0.18); color: var(--accent-2); border-color: var(--accent-2); }
+/* icon-only buttons (duplicate) */
+.card-actions .ca-icon { flex: 0 0 auto; padding: 0.3rem 0.55rem; }
 
 .hint { color: var(--muted); font-style: italic; margin-top: 0; }
 
@@ -230,12 +244,13 @@ header h1 { margin: 0; font-size: 1.6rem; }
 }
 .suggestion-actions .primary-sm {
   background: var(--accent-2); color: white; border: none;
-  padding: 0.5rem 0.9rem; border-radius: 6px; cursor: pointer; font-weight: 600;
+  padding: 0.5rem 0.9rem; border-radius: 8px; cursor: pointer;
+  font-weight: 600; min-height: 40px;
 }
 .suggestion-actions .snooze {
   background: var(--panel-2); color: var(--muted); border: 1px solid var(--border);
-  padding: 0.5rem 0.8rem; border-radius: 6px; cursor: pointer;
-  font-size: 0.85rem;
+  padding: 0.5rem 0.9rem; border-radius: 8px; cursor: pointer;
+  font-size: 0.9rem; min-height: 40px;
 }
 .suggestion-actions .snooze:hover { color: var(--text); border-color: var(--muted); }
 
@@ -274,20 +289,30 @@ header h1 { margin: 0; font-size: 1.6rem; }
   display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1rem;
 }
 .modal-actions button {
-  padding: 0.55rem 1rem; border-radius: 6px; cursor: pointer; border: none;
-  font-weight: 600;
+  padding: 0.55rem 1rem; border-radius: 8px; cursor: pointer; border: none;
+  font-weight: 600; min-height: 40px; font-size: 0.95rem;
 }
 .modal-actions button[type="submit"] { background: var(--accent); color: #0c1322; }
-.modal-actions #cancelBtn, #receiptCancelBtn { background: var(--panel-2); color: var(--text); }
-.danger { background: var(--bad); color: white; }
+.modal-actions #cancelBtn, #receiptCancelBtn { background: var(--panel-2); color: var(--text); border: 1px solid var(--border); }
+.danger, button.danger { background: rgba(248,113,113,0.12); color: var(--bad); border: 1px solid rgba(248,113,113,0.4) !important; border-radius: 8px; cursor: pointer; font-weight: 600; }
+.danger:hover, button.danger:hover { background: var(--bad); color: white; border-color: var(--bad) !important; }
 .hidden { display: none !important; }
 
 #tab-settings button, .file-btn {
   display: inline-block;
   background: var(--panel-2); color: var(--text); border: 1px solid var(--border);
-  padding: 0.55rem 1rem; border-radius: 6px; cursor: pointer; margin: 0.3rem 0.3rem 0.3rem 0;
+  padding: 0.55rem 1rem; border-radius: 8px; cursor: pointer;
+  margin: 0.25rem 0.25rem 0.25rem 0; font-size: 0.92rem;
+  font-weight: 600; min-height: 40px;
+  transition: border-color 0.15s, background 0.15s;
 }
-#tab-settings .danger { background: var(--bad); border-color: var(--bad); }
+#tab-settings button:hover, .file-btn:hover {
+  border-color: var(--accent); color: var(--accent);
+}
+#tab-settings button.primary { background: var(--accent); color: #0c1322; border-color: var(--accent); }
+#tab-settings button.primary:hover { filter: brightness(1.1); }
+#tab-settings .danger { background: rgba(248,113,113,0.12); color: var(--bad); border-color: rgba(248,113,113,0.4); }
+#tab-settings .danger:hover { background: var(--bad); color: white; border-color: var(--bad); }
 #tab-settings input { display: block; margin: 0.5rem 0; padding: 0.55rem; width: 100%; max-width: 400px;
   background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 6px; }
 
@@ -325,30 +350,25 @@ header h1 { margin: 0; font-size: 1.6rem; }
 .today-row .cost-tag { color: var(--good); font-size: 0.8rem; font-weight: 600; }
 .today-row .row-actions { display: flex; gap: 0.3rem; }
 .today-row .row-actions button {
-  background: var(--bg); color: var(--text); border: 1px solid var(--border);
-  border-radius: 4px; padding: 0.2rem 0.5rem; font-size: 0.75rem; cursor: pointer;
+  background: var(--bg); color: var(--muted); border: 1px solid var(--border);
+  border-radius: 6px; padding: 0.3rem 0.65rem; font-size: 0.8rem;
+  font-weight: 600; cursor: pointer; min-height: 36px; white-space: nowrap;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
 }
-.today-row .row-actions button:hover { background: var(--accent); color: #0c1322; }
-.today-row .row-actions button.queued { background: var(--accent-2); color: white; border-color: var(--accent-2); }
+.today-row .row-actions button:hover { background: var(--accent); color: #0c1322; border-color: var(--accent); }
+.today-row .row-actions button.queued { background: rgba(129,140,248,0.18); color: var(--accent-2); border-color: var(--accent-2); }
+.today-row .row-actions button.bought-now { background: rgba(74,222,128,0.14); color: var(--good); border-color: rgba(74,222,128,0.4); }
 
 .full-width { width: 100%; margin-top: auto; }
 
-/* Today → trip-card action row (Build trip + Shop now buttons side by side) */
+/* Today → trip-card action row */
 .trip-card-actions {
   display: flex; gap: 0.5rem; margin-top: auto;
   flex-wrap: wrap;
 }
-.trip-card-actions button { flex: 1 1 auto; }
-.trip-card-actions .ghost {
-  flex: 0 0 auto;
-  background: transparent; color: var(--muted);
-  border: 1px solid var(--border); border-radius: 6px;
-  padding: 0.55rem 0.8rem; cursor: pointer;
-}
-.trip-card-actions .ghost:hover { color: var(--bad); border-color: var(--bad); }
+.trip-card-actions button { flex: 1 1 auto; min-height: 44px; font-size: 0.95rem; }
 @media (max-width: 480px) {
   .trip-card-actions { flex-direction: column; }
-  .trip-card-actions .ghost { flex: 1; }
 }
 
 /* Date quick-presets in the add/edit modal */
@@ -415,11 +435,34 @@ header h1 { margin: 0; font-size: 1.6rem; }
 }
 .history-readd:hover { color: var(--accent); border-color: var(--accent); }
 
-button.primary {
+/* ── Global button tokens ────────────────────────────────────────────────────
+   Use these classes everywhere instead of inline styles.
+   Min-height 44px on all interactive controls (WCAG / iOS HIG).
+   ─────────────────────────────────────────────────────────────────────────── */
+button.primary, .btn-primary {
   background: var(--accent); color: #0c1322; border: none;
-  padding: 0.55rem 0.9rem; border-radius: 6px; cursor: pointer; font-weight: 700;
+  padding: 0.55rem 1rem; border-radius: 8px; cursor: pointer;
+  font-weight: 700; font-size: 0.95rem; min-height: 40px;
+  transition: filter 0.15s;
 }
-button.primary:hover { filter: brightness(1.1); }
+button.primary:hover, .btn-primary:hover { filter: brightness(1.1); }
+
+button.secondary, .btn-secondary {
+  background: var(--panel-2); color: var(--text);
+  border: 1px solid var(--border); border-radius: 8px;
+  padding: 0.55rem 1rem; cursor: pointer;
+  font-weight: 600; font-size: 0.95rem; min-height: 40px;
+  transition: border-color 0.15s, background 0.15s;
+}
+button.secondary:hover, .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+button.ghost, .btn-ghost {
+  background: transparent; color: var(--muted);
+  border: 1px solid var(--border); border-radius: 8px;
+  padding: 0.55rem 1rem; cursor: pointer;
+  font-weight: 600; font-size: 0.95rem; min-height: 40px;
+}
+button.ghost:hover, .btn-ghost:hover { color: var(--bad); border-color: var(--bad); }
 
 /* In-trip badge on cards */
 .card.in-trip { border-left: 4px solid var(--accent-2); }
@@ -699,10 +742,10 @@ kbd {
   .card { padding: 0.85rem; }
   .card h3 { font-size: 1rem; }
   /* Bigger, easier-to-tap action buttons */
-  .card-actions { gap: 0.35rem; }
-  .card-actions button {
-    padding: 0.65rem 0.4rem;
-    font-size: 0.85rem;
+  .card-actions { gap: 0.3rem; }
+  .card-actions .ca {
+    padding: 0.6rem 0.35rem;
+    font-size: 0.83rem;
     min-height: 44px;
   }
 
@@ -782,12 +825,12 @@ kbd {
   .summary > div { padding: 0.3rem 0.25rem; }
   .summary span { font-size: 0.85rem; }
   .summary small { font-size: 0.55rem; }
-  .card-actions button { font-size: 0.78rem; padding: 0.55rem 0.3rem; }
+  .card-actions .ca { font-size: 0.76rem; padding: 0.5rem 0.3rem; }
   .tab { padding: 0.7rem 0.55rem; font-size: 0.82rem; }
   .fab { padding: 0.75rem 1rem; font-size: 0.85rem; }
 }
 
-/* Floating action button — always-reachable "Build trip" while items queued */
+/* Floating action button — always-reachable "Start trip" while items queued */
 .fab {
   position: fixed;
   right: 1.25rem;
@@ -797,28 +840,31 @@ kbd {
   color: #0c1322;
   border: none;
   border-radius: 999px;
-  padding: 0.85rem 1.3rem;
+  padding: 0.75rem 1.1rem 0.75rem 1.25rem;
   font-size: 0.95rem;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 6px 20px rgba(56, 189, 248, 0.35), 0 2px 6px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 16px rgba(56,189,248,0.4), 0 2px 6px rgba(0,0,0,0.3);
   display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
+  gap: 0.5rem;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
+  min-height: 48px;
 }
 .fab:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 24px rgba(56, 189, 248, 0.45), 0 2px 6px rgba(0, 0, 0, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(56,189,248,0.5), 0 2px 6px rgba(0,0,0,0.3);
 }
 .fab .fab-count {
   background: #0c1322;
   color: var(--accent);
   border-radius: 999px;
-  padding: 0.05rem 0.55rem;
-  font-size: 0.8rem;
-  min-width: 1.4em;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.85rem;
+  font-weight: 800;
+  min-width: 1.6em;
   text-align: center;
+  line-height: 1.2;
 }
 .fab.hidden { display: none !important; }
 @media print {

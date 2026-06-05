@@ -81,7 +81,7 @@
         <div id="tripQueue"></div>
         <div class="trip-card-actions">
           <button id="generateFromQueueBtn" class="primary" title="Build a trip from your queued items">🛍️ Start trip</button>
-          <button id="clearQueueBtn" class="ghost" title="Remove all items from the trip queue">× Clear</button>
+          <button id="clearQueueBtn" class="ghost" title="Remove all items from the trip queue">× Clear queue</button>
         </div>
       </div>
       <div class="today-card tips-card">
@@ -367,7 +367,8 @@ Total                    18.67"></textarea>
 
   <!-- Floating action button: appears on any tab when items are queued -->
   <button id="buildTripFab" class="fab hidden" title="Start trip from queue">
-    🛍️ Start trip <span class="fab-count">0</span>
+    🛍️ Start trip
+    <span class="fab-count">0</span>
   </button>
 
   <script src="app.js"></script>
