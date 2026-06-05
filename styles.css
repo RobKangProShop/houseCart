@@ -33,15 +33,15 @@ body {
 
 header {
   background: linear-gradient(135deg, #1e3a8a, #4c1d95);
-  padding: 1.25rem 1.5rem;
+  padding: 0.6rem 1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 1rem;
+  flex-wrap: nowrap;
+  gap: 0.75rem;
 }
-header h1 { margin: 0; font-size: 1.6rem; }
-.summary { display: flex; gap: 1.5rem; }
+header h1 { margin: 0; font-size: 1.25rem; white-space: nowrap; }
+.summary { display: flex; gap: 0.5rem; flex: 1; justify-content: flex-end; min-width: 0; }
 /* All three header tiles share the same shape; the trip tile additionally
    uses .summary-tile-trip + .has-queue for an accent state. */
 .summary-tile {
@@ -818,13 +818,14 @@ body.shop-open { overflow: hidden; position: fixed; width: 100%; }
 @media (max-width: 600px) {
   /* ---------- Header / chrome ---------- */
   header {
-    flex-direction: column; align-items: flex-start;
-    padding: 0.85rem 1rem;
-    gap: 0.6rem;
+    padding: 0.5rem 0.75rem;
+    gap: 0.4rem;
   }
+  /* Hide the text label, keep the house emoji as a compact brand mark. */
   header h1 { font-size: 1.25rem; }
-  .summary { width: 100%; gap: 0.4rem; justify-content: space-between; flex-wrap: nowrap; }
-  .summary-tile { padding: 0.35rem 0.4rem; }
+  header h1 .brand-text { display: none; }
+  .summary { gap: 0.35rem; flex-wrap: nowrap; }
+  .summary-tile { padding: 0.3rem 0.4rem; }
   .summary-tile span { font-size: 0.95rem; }
   .summary-tile small { font-size: 0.6rem; line-height: 1.1; text-align: center; }
 
