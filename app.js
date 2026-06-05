@@ -2109,8 +2109,8 @@ function renderTodayTips(tips) {
   }
   tips.forEach((s) => {
     const row = document.createElement("div");
-    row.className = "today-row";
-    row.innerHTML = `<span class="name" style="font-size:0.88rem">${s.html}</span>
+    row.className = "today-row tip-row";
+    row.innerHTML = `<span class="name">${s.html}</span>
       <span class="row-actions"><button>${s.action}</button></span>`;
     row.querySelector("button").addEventListener("click", (e) => {
       e.stopPropagation();
