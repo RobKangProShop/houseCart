@@ -61,12 +61,12 @@ Wake Lock API, and "Add to Home Screen" on iOS.
 cd "C:\Users\Robert Kang\source\repos\aiWorkshop\housecart"
 git init && git add . && git commit -m "Initial commit"
 git branch -M main
-git remote add origin https://github.com/<you>/housecart.git
+git remote add origin https://github.com/RobKangProShop/houseCart.git
 git push -u origin main
 ```
 
 Then on GitHub: **Settings → Pages → Source: `main` / root → Save**.
-URL: `https://<you>.github.io/housecart/`.
+URL: `https://robkangproshop.github.io/houseCart/`.
 
 ### Local testing
 
