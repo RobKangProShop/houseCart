@@ -1328,61 +1328,21 @@ function generateTrip(opts = {}) {
             ? ` <span class="item-reason">+ also: ${c.item.related.map(escapeHtml).join(", ")}</span>`
             : "";
           return `
-          <label data-id="${id}">
-            <input type="checkbox" id="${id}" />
-            <span>${escapeHtml(c.item.name)} <span class="item-reason">(${c.reason})</span>${relatedNote}</span>
+          <div class="trip-item" data-id="${id}">
+            <span class="trip-item-name">${escapeHtml(c.item.name)} <span class="item-reason">(${c.reason})</span>${relatedNote}</span>
             ${c.item.cost ? `<span class="item-cost">$${c.item.cost.toFixed(2)}</span>` : ""}
-          </label>
+          </div>
         `;
         })
         .join("");
       div.innerHTML = `
         <h3>
           <span>📍 ${escapeHtml(store)} <small>${list.length} item${list.length > 1 ? "s" : ""} · $${subTotal.toFixed(2)}</small></span>
-          <label class="store-select-all-label" title="Check / uncheck all in this store">
-            <input type="checkbox" class="store-select-all" /> all
-          </label>
         </h3>
         ${items}
       `;
       root.appendChild(div);
     }
-
-    // Toggle line-through on individual check
-    root
-      .querySelectorAll(
-        '.trip-group input[type="checkbox"]:not(.store-select-all)',
-      )
-      .forEach((cb) => {
-        cb.addEventListener("change", () => {
-          cb.closest("label").classList.toggle("checked", cb.checked);
-          // Sync the store-level select-all (indeterminate if mixed)
-          const group = cb.closest(".trip-group");
-          const all = group.querySelectorAll(
-            'input[type="checkbox"]:not(.store-select-all)',
-          );
-          const checked = group.querySelectorAll(
-            'input[type="checkbox"]:not(.store-select-all):checked',
-          );
-          const sel = group.querySelector(".store-select-all");
-          sel.checked = checked.length === all.length;
-          sel.indeterminate = checked.length > 0 && checked.length < all.length;
-        });
-      });
-    // Wire each store's select-all
-    root.querySelectorAll(".store-select-all").forEach((sel) => {
-      sel.addEventListener("click", (e) => e.stopPropagation()); // don't toggle label-children
-      sel.addEventListener("change", () => {
-        const group = sel.closest(".trip-group");
-        group
-          .querySelectorAll('input[type="checkbox"]:not(.store-select-all)')
-          .forEach((cb) => {
-            cb.checked = sel.checked;
-            cb.closest("label").classList.toggle("checked", cb.checked);
-          });
-        sel.indeterminate = false;
-      });
-    });
   }
 
   document.getElementById("tripModal").classList.remove("hidden");
@@ -1398,44 +1358,20 @@ document.getElementById("tripCopyBtn").addEventListener("click", () => {
   const root = document.getElementById("tripGroups");
   const lines = [];
   root.querySelectorAll(".trip-group").forEach((g) => {
-    lines.push(
-      g
-        .querySelector("h3")
-        .textContent.replace(/\s+all\s*$/i, "")
-        .trim(),
-    );
-    g.querySelectorAll("label[data-id]").forEach((l) => {
-      const checked = l.querySelector("input").checked ? "[x]" : "[ ]";
-      const text = l.querySelector("span").textContent.trim().split(" (")[0];
-      const cost = l.querySelector(".item-cost")?.textContent || "";
-      lines.push(`  ${checked} ${text}${cost ? "  " + cost : ""}`);
+    lines.push(g.querySelector("h3").textContent.trim());
+    g.querySelectorAll(".trip-item").forEach((row) => {
+      const text = row
+        .querySelector(".trip-item-name")
+        .textContent.trim()
+        .split(" (")[0];
+      const cost = row.querySelector(".item-cost")?.textContent || "";
+      lines.push(`  • ${text}${cost ? "  " + cost : ""}`);
     });
     lines.push("");
   });
   navigator.clipboard
     .writeText(lines.join("\n"))
     .then(() => flash("Copied to clipboard."));
-});
-document.getElementById("tripMarkBoughtBtn").addEventListener("click", () => {
-  const root = document.getElementById("tripGroups");
-  let n = 0;
-  root
-    .querySelectorAll(
-      '.trip-group input[type="checkbox"]:not(.store-select-all):checked',
-    )
-    .forEach((cb) => {
-      const entry = currentTrip.find((t) => t.id === cb.id);
-      if (entry) {
-        markBought(entry.itemId, { silent: true });
-        n++;
-      }
-    });
-  if (!n) {
-    alert("Check off the items you actually bought first.");
-    return;
-  }
-  document.getElementById("tripModal").classList.add("hidden");
-  flash(`Marked ${n} item${n > 1 ? "s" : ""} as bought.`);
 });
 
 /* ---------------- Shop Mode (full-screen in-store) ---------------- */

@@ -156,19 +156,11 @@ header h1 { margin: 0; font-size: 1.6rem; }
   display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;
 }
 .trip-group h3 small { color: var(--muted); font-weight: 400; }
-.trip-group .store-select-all-label {
-  display: inline-flex; align-items: center; gap: 0.3rem;
-  font-size: 0.75rem; color: var(--muted); font-weight: 400;
-  cursor: pointer; user-select: none;
+.trip-item {
+  display: flex; align-items: center; gap: 0.6rem;
+  padding: 0.3rem 0; color: var(--text);
 }
-.trip-group .store-select-all { cursor: pointer; margin: 0; }
-.trip-group label {
-  display: flex !important; flex-direction: row !important;
-  align-items: center; gap: 0.6rem; padding: 0.3rem 0; cursor: pointer;
-  margin: 0 !important; color: var(--text) !important;
-}
-.trip-group label.checked { opacity: 0.5; text-decoration: line-through; }
-.trip-group input[type="checkbox"] { width: auto; margin: 0; cursor: pointer; }
+.trip-item-name { flex: 1; min-width: 0; }
 .trip-group .item-cost { margin-left: auto; color: var(--good); font-size: 0.85rem; }
 .trip-group .item-reason { color: var(--muted); font-size: 0.75rem; font-style: italic; }
 
