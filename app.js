@@ -1692,13 +1692,24 @@ function flash(msg) {
       "position:fixed;left:50%;transform:translateX(-50%);background:#0c1322;color:#38bdf8;padding:0.7rem 1.2rem;border-radius:8px;border:1px solid #38bdf8;z-index:400;font-weight:600;";
     document.body.appendChild(el);
   }
-  // Shop Mode has a fixed footer — lift the toast above it so it isn't obscured.
+  // Lift the toast above whatever fixed UI is on screen so it isn't obscured:
+  //   - Shop Mode footer (~88px tall incl. home indicator)
+  //   - "Start trip" FAB (~64px tall incl. safe-area)
+  //   - Otherwise sit at a comfortable 24px from the bottom (safe-area aware).
   const shopOpen = !document
     .getElementById("shopMode")
     ?.classList.contains("hidden");
-  el.style.bottom = shopOpen
-    ? "calc(env(safe-area-inset-bottom, 0px) + 88px)"
-    : "80px";
+  const fab = document.getElementById("buildTripFab");
+  const fabVisible = fab && !fab.classList.contains("hidden");
+  let bottom;
+  if (shopOpen) {
+    bottom = "calc(env(safe-area-inset-bottom, 0px) + 88px)";
+  } else if (fabVisible) {
+    bottom = "calc(env(safe-area-inset-bottom, 0px) + 88px)";
+  } else {
+    bottom = "calc(env(safe-area-inset-bottom, 0px) + 24px)";
+  }
+  el.style.bottom = bottom;
   el.textContent = msg;
   el.style.opacity = "1";
   clearTimeout(flashTimer);
