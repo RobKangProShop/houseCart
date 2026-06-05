@@ -1552,7 +1552,7 @@ function generateTrip(opts = {}) {
 
 document
   .getElementById("generateListBtn")
-  .addEventListener("click", generateTrip);
+  ?.addEventListener("click", generateTrip);
 document.getElementById("tripCloseBtn").addEventListener("click", () => {
   document.getElementById("tripModal").classList.add("hidden");
 });
