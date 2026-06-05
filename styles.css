@@ -290,8 +290,6 @@ header h1 { margin: 0; font-size: 1.6rem; }
 .card-actions .ca-trip { color: var(--accent-2); border-color: rgba(129,140,248,0.3); }
 .card-actions .ca-trip:hover { background: rgba(129,140,248,0.18); color: var(--accent-2); border-color: var(--accent-2); }
 .card-actions .ca-trip.queued { background: rgba(129,140,248,0.18); color: var(--accent-2); border-color: var(--accent-2); }
-/* icon-only buttons (duplicate) */
-.card-actions .ca-icon { flex: 0 0 auto; padding: 0.3rem 0.55rem; }
 
 .hint { color: var(--muted); font-style: italic; margin-top: 0; }
 
@@ -494,8 +492,8 @@ header h1 { margin: 0; font-size: 1.6rem; }
 .history-readd {
   background: transparent; border: 1px solid var(--border);
   color: var(--muted); border-radius: 4px;
-  padding: 0.1rem 0.45rem; margin-left: 0.5rem;
-  cursor: pointer; font-size: 0.95rem; line-height: 1;
+  padding: 0.1rem 0.6rem; margin-left: 0.5rem;
+  cursor: pointer; font-size: 0.88rem; line-height: 1; white-space: nowrap;
 }
 .history-readd:hover { color: var(--accent); border-color: var(--accent); }
 

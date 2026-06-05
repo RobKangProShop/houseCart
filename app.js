@@ -155,11 +155,17 @@ const SECONDARY_TABS = new Set(["goals", "suggestions", "history", "settings"]);
 function switchTab(tabName) {
   const isSecondary = SECONDARY_TABS.has(tabName);
   // Deactivate all primary tabs
-  document.querySelectorAll(".tab[data-tab]").forEach((x) => x.classList.remove("active"));
+  document
+    .querySelectorAll(".tab[data-tab]")
+    .forEach((x) => x.classList.remove("active"));
   // Deactivate all panels
-  document.querySelectorAll(".tab-panel").forEach((x) => x.classList.remove("active"));
+  document
+    .querySelectorAll(".tab-panel")
+    .forEach((x) => x.classList.remove("active"));
   // Deactivate more-nav items
-  document.querySelectorAll(".more-nav-item").forEach((x) => x.classList.remove("active"));
+  document
+    .querySelectorAll(".more-nav-item")
+    .forEach((x) => x.classList.remove("active"));
 
   // Activate the target panel
   const panel = document.getElementById("tab-" + tabName);
@@ -174,7 +180,9 @@ function switchTab(tabName) {
   const moreBtn = document.getElementById("moreTabBtn");
   if (moreBtn) moreBtn.classList.toggle("secondary-active", isSecondary);
   // Highlight the matching more-nav item
-  const moreItem = document.querySelector(`.more-nav-item[data-tab="${tabName}"]`);
+  const moreItem = document.querySelector(
+    `.more-nav-item[data-tab="${tabName}"]`,
+  );
   if (moreItem) moreItem.classList.add("active");
   // Close the sheet after navigation
   closeMoreSheet();
@@ -201,15 +209,18 @@ document.querySelectorAll(".more-nav-item[data-tab]").forEach((t) => {
 });
 
 // Close the sheet via backdrop or close button
-document.querySelector(".more-sheet-backdrop")?.addEventListener("click", closeMoreSheet);
-document.getElementById("moreSheetCloseBtn")?.addEventListener("click", closeMoreSheet);
+document
+  .querySelector(".more-sheet-backdrop")
+  ?.addEventListener("click", closeMoreSheet);
+document
+  .getElementById("moreSheetCloseBtn")
+  ?.addEventListener("click", closeMoreSheet);
 
 // Keyboard shortcut: Escape closes the sheet
 // (handled in the global keydown below, but also wire it here defensively)
 document.getElementById("moreSheet")?.addEventListener("keydown", (e) => {
   if (e.key === "Escape") closeMoreSheet();
 });
-
 
 /* ---------------- Quick add (natural language) ---------------- */
 const STORE_HINTS = [
@@ -743,8 +754,8 @@ function makeCard(item) {
     <div class="card-actions">
       <button class="ca ca-bought" data-act="bought">✓ Bought</button>
       <button class="ca ca-trip${item.inTrip ? " queued" : ""}" data-act="queue">${item.inTrip ? "✕ Remove" : "+ Trip"}</button>
-      <button class="ca ca-icon" data-act="dup" title="Duplicate as a new active item" aria-label="Duplicate">⧉</button>
-      <button class="ca" data-act="edit">Edit</button>
+      <button class="ca" data-act="dup" title="Duplicate as a new active item" aria-label="Duplicate">⧉ Copy</button>
+      <button class="ca" data-act="edit">✏️ Edit</button>
     </div>
   `;
   div.querySelector('[data-act="bought"]').addEventListener("click", (e) => {
@@ -997,7 +1008,7 @@ function renderHistory() {
     el.innerHTML = `
       <span>${escapeHtml(r.name)} ${r.store ? `<small style="color:var(--muted)">@ ${escapeHtml(r.store)}</small>` : ""}</span>
       <span>${r.cost ? "$" + Number(r.cost).toFixed(2) : ""} <span class="date">${r.date}</span>
-        <button class="history-readd" title="Re-add as active item">↻</button>
+        <button class="history-readd" title="Re-add as active item">↻ Re-add</button>
       </span>
     `;
     el.querySelector(".history-readd").addEventListener("click", (e) => {
@@ -2312,9 +2323,20 @@ document.addEventListener("keydown", (e) => {
     default:
       // Numbered tabs: 1=Today 2=Items 3=Recurring 4=Goals 5=Suggestions 6=History 7=Settings
       if (/^[1-7]$/.test(e.key)) {
-        const tabNames = ["today", "list", "recurring", "goals", "suggestions", "history", "settings"];
+        const tabNames = [
+          "today",
+          "list",
+          "recurring",
+          "goals",
+          "suggestions",
+          "history",
+          "settings",
+        ];
         const name = tabNames[parseInt(e.key, 10) - 1];
-        if (name) { e.preventDefault(); switchTab(name); }
+        if (name) {
+          e.preventDefault();
+          switchTab(name);
+        }
       }
   }
 });

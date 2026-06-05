@@ -74,7 +74,7 @@
       autocomplete="off"
     />
     <button id="quickAddBtn" title="Add (N)">+ Add</button>
-    <button id="voiceBtn" title="Voice add">🎤</button>
+    <button id="voiceBtn" title="Voice add">🎤 Voice</button>
     <button id="receiptBtn" title="Paste a receipt to bulk-add">📷 Receipt</button>
     <input
       id="globalSearch"
@@ -90,7 +90,7 @@
     <div id="backupBanner" class="banner hidden">
       <span>💾 Last backup was <strong class="days">a while ago</strong>. Save a copy somewhere safe.</span>
       <span class="banner-actions">
-        <button id="bannerBackupBtn" class="primary-sm">Back up now</button>
+        <button id="bannerBackupBtn" class="primary-sm">💾 Back up now</button>
         <button id="bannerDismissBtn" class="link-btn">Dismiss</button>
       </span>
     </div>
@@ -108,7 +108,7 @@
         <div id="tripQueue"></div>
         <div class="trip-card-actions">
           <button id="generateFromQueueBtn" class="primary" title="Build a trip from your queued items">🛍️ Start trip</button>
-          <button id="clearQueueBtn" class="ghost" title="Remove all items from the trip queue">× Clear queue</button>
+          <button id="clearQueueBtn" class="ghost" title="Remove all items from the trip queue">🗑️ Clear queue</button>
         </div>
       </div>
       <div class="today-card tips-card">
@@ -226,10 +226,10 @@
       <input id="gistId" type="text" placeholder="e.g. 1a2b3c4d…" autocomplete="off" />
     </label>
     <div class="settings-row">
-      <button id="gistSaveBtn" class="primary">Save & connect</button>
-      <button id="gistSyncBtn">↑ Push now</button>
-      <button id="gistPullBtn">↓ Pull now</button>
-      <button id="gistDisableBtn" class="danger">Disconnect</button>
+      <button id="gistSaveBtn" class="primary">💾 Save & connect</button>
+      <button id="gistSyncBtn">⬆️ Push now</button>
+      <button id="gistPullBtn">⬇️ Pull now</button>
+      <button id="gistDisableBtn" class="danger">🔌 Disconnect</button>
     </div>
     <div class="settings-row">
       <button id="gistShareLinkBtn" title="Copy a one-time setup link to send to your other device">🔗 Copy setup link for another device</button>
@@ -245,7 +245,7 @@
       ⚠️ Stored <strong>unencrypted</strong> in this browser's localStorage. Anyone with access to this browser profile (or a malicious browser extension) can read it. Use a key with the lowest scope possible and rotate often.
     </p>
     <input id="apiKey" type="password" placeholder="sk-…" />
-    <button id="saveKeyBtn">Save key</button>
+    <button id="saveKeyBtn">💾 Save key</button>
   </section>
 
   <!-- Add/Edit modal -->
@@ -342,7 +342,7 @@ Total                    18.67"></textarea>
       <p class="hint" id="tripSummary"></p>
       <div id="tripGroups"></div>
       <div class="modal-actions">
-        <button type="button" id="tripCloseBtn">Close</button>
+        <button type="button" id="tripCloseBtn">✕ Close</button>
         <button type="button" id="tripCopyBtn">📋 Copy</button>
         <button type="button" id="tripShopModeBtn" class="primary">🛍️ Shop Mode</button>
       </div>
