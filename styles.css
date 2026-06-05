@@ -620,10 +620,10 @@ body.shop-open { overflow: hidden; position: fixed; width: 100%; }
 .shop-mode.hidden { display: none; }
 
 .shop-header {
-  display: flex; align-items: center; gap: 0.6rem;
+  display: flex; align-items: center; gap: 0.5rem;
   /* Top padding includes safe-area so the ✕ / 🔗 buttons clear the iOS notch.
      Kept tight so the banner doesn't eat real estate on phones. */
-  padding: calc(0.4rem + env(safe-area-inset-top, 0px)) 0.75rem 0.4rem;
+  padding: calc(0.25rem + env(safe-area-inset-top, 0px)) 0.6rem 0.25rem;
   background: linear-gradient(135deg, #1e3a8a, #4c1d95);
   /* Stay above scrolling content; also pin the layout so the body can never
      visually slide over the banner. */
@@ -631,13 +631,24 @@ body.shop-open { overflow: hidden; position: fixed; width: 100%; }
   z-index: 2;
   flex-shrink: 0;
 }
-.shop-title { flex: 1; min-width: 0; }
-.shop-title h2 { margin: 0; font-size: 1.05rem; line-height: 1.2; }
-.shop-title p { margin: 0.05rem 0 0; font-size: 0.75rem; color: var(--muted); }
+.shop-title {
+  flex: 1; min-width: 0;
+  display: flex; align-items: baseline; gap: 0.5rem;
+  overflow: hidden;
+}
+.shop-title h2 {
+  margin: 0; font-size: 1rem; line-height: 1.2;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.shop-progress-text {
+  font-size: 0.75rem; color: var(--muted);
+  white-space: nowrap; flex-shrink: 0;
+}
 .shop-icon-btn {
   background: rgba(0,0,0,0.3); color: white; border: none;
-  width: 38px; height: 38px; border-radius: 50%; font-size: 1.05rem;
+  width: 34px; height: 34px; border-radius: 50%; font-size: 0.95rem;
   cursor: pointer; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
 }
 .shop-icon-btn:hover { background: rgba(0,0,0,0.5); }
 
@@ -909,8 +920,8 @@ body.shop-open { overflow: hidden; position: fixed; width: 100%; }
 
   /* ---------- Shop Mode tweaks ---------- */
   .shop-mode { font-size: 1rem; }
-  .shop-header h2 { font-size: 1rem; }
-  .shop-title p { font-size: 0.7rem; }
+  .shop-header h2 { font-size: 0.95rem; }
+  .shop-progress-text { font-size: 0.7rem; }
   .shop-item { padding: 0.85rem; gap: 0.75rem; }
   .shop-item-name { font-size: 1rem; }
   /* (.shop-footer safe-area now lives in the base rule above.) */

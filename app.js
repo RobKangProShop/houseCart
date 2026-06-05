@@ -1703,8 +1703,7 @@ function renderShopMode() {
   // Progress bar + counter
   const total = shopState.items.length;
   const done = shopState.checked.size;
-  $("shopProgress").textContent =
-    `${done} of ${total} item${total === 1 ? "" : "s"}`;
+  $("shopProgress").textContent = `${done}/${total}`;
   $("shopProgressFill").style.width = total ? `${(done / total) * 100}%` : "0%";
 
   const total$ = shopState.items.reduce((s, i) => s + (i.cost || 0), 0);
