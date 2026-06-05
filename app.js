@@ -1692,24 +1692,29 @@ function flash(msg) {
       "position:fixed;left:50%;transform:translateX(-50%);background:#0c1322;color:#38bdf8;padding:0.7rem 1.2rem;border-radius:8px;border:1px solid #38bdf8;z-index:400;font-weight:600;";
     document.body.appendChild(el);
   }
-  // Lift the toast above whatever fixed UI is on screen so it isn't obscured:
-  //   - Shop Mode footer (~88px tall incl. home indicator)
-  //   - "Start trip" FAB (~64px tall incl. safe-area)
-  //   - Otherwise sit at a comfortable 24px from the bottom (safe-area aware).
-  const shopOpen = !document
-    .getElementById("shopMode")
-    ?.classList.contains("hidden");
+  // Lift the toast above whatever fixed UI is on screen so it isn't obscured.
+  // We MEASURE the FAB / shop footer instead of guessing pixel values, so
+  // it works even when the FAB pill wraps to two lines on small screens.
+  const shopMode = document.getElementById("shopMode");
+  const shopOpen = shopMode && !shopMode.classList.contains("hidden");
   const fab = document.getElementById("buildTripFab");
   const fabVisible = fab && !fab.classList.contains("hidden");
-  let bottom;
+
   if (shopOpen) {
-    bottom = "calc(env(safe-area-inset-bottom, 0px) + 88px)";
+    const footer = shopMode.querySelector(".shop-footer");
+    const footerH = footer?.getBoundingClientRect().height || 64;
+    // Footer's CSS bottom already includes safe-area; just clear its height.
+    el.style.bottom = `${footerH + 16}px`;
   } else if (fabVisible) {
-    bottom = "calc(env(safe-area-inset-bottom, 0px) + 88px)";
+    const fabRect = fab.getBoundingClientRect();
+    // Distance from viewport bottom to top of FAB, plus margin.
+    // (window.innerHeight - fabRect.top already includes safe-area inset.)
+    const lift = window.innerHeight - fabRect.top + 12;
+    el.style.bottom = `${lift}px`;
   } else {
-    bottom = "calc(env(safe-area-inset-bottom, 0px) + 24px)";
+    // No floating UI — sit comfortably above safe-area.
+    el.style.bottom = "calc(env(safe-area-inset-bottom, 0px) + 24px)";
   }
-  el.style.bottom = bottom;
   el.textContent = msg;
   el.style.opacity = "1";
   clearTimeout(flashTimer);
