@@ -887,8 +887,8 @@ function computeSuggestions() {
       const key = `recur-${i.id}`;
       if (isSnoozed(key)) continue;
       out.push({
-        html: `<strong>${escapeHtml(i.name)}</strong> is ${d < 0 ? `overdue by ${-d}d` : d === 0 ? "due today" : `due in ${d}d`} (${i.recur}).`,
-        action: "Mark bought",
+        html: `<strong>${escapeHtml(i.name)}</strong> · ${d < 0 ? `${-d}d overdue` : d === 0 ? "due today" : `due in ${d}d`}`,
+        action: "Bought",
         handler: () => markBought(i.id),
         snooze: () => snooze(key, 7),
       });
@@ -910,8 +910,8 @@ function computeSuggestions() {
         const key = `restock-${i.id}`;
         if (isSnoozed(key)) continue;
         out.push({
-          html: `You bought <strong>${escapeHtml(i.name)}</strong> ${daysAgo}d ago. Time to restock?`,
-          action: "Add to list",
+          html: `<strong>${escapeHtml(i.name)}</strong> · restock? (last buy ${daysAgo}d ago)`,
+          action: "Add",
           handler: () => {
             state.items.push({
               ...i,
@@ -939,7 +939,7 @@ function computeSuggestions() {
           continue;
         }
         out.push({
-          html: `Since you're getting <strong>${escapeHtml(i.name)}</strong>, don't forget <strong>${escapeHtml(r)}</strong>.`,
+          html: `With <strong>${escapeHtml(i.name)}</strong>: also <strong>${escapeHtml(r)}</strong>?`,
           action: "Add",
           handler: () => {
             state.items.push({
