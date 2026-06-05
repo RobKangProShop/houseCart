@@ -595,7 +595,7 @@ function toggleTripQueue(id) {
     showActionToast(
       `Added to trip queue (${queueCount}).`,
       "�️ Start trip",
-      () => generateTrip({ onlyQueued: true }),
+      () => generateTrip({ onlyQueued: true, skipPreview: true }),
     );
   }
 }
