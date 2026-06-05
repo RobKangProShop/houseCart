@@ -547,15 +547,17 @@ button.ghost:hover, .btn-ghost:hover { color: var(--bad); border-color: var(--ba
   50% { box-shadow: 0 0 0 8px rgba(248,113,113,0); }
 }
 
-/* Undo toast */
+/* Toasts and flash messages.
+   - .toast: undo / action toasts with a button (z-index 350)
+   - .flash: brief info banner, never interactive (z-index 360, pointer-events: none) */
 .toast {
   position: fixed; left: 50%; transform: translateX(-50%);
   background: var(--panel); color: var(--text);
   border: 1px solid var(--accent); border-radius: 8px;
   padding: 0.7rem 1rem; display: flex; align-items: center; gap: 1rem;
-  /* Must be above the FAB (z-index 250) and below modals (z-index 600). */
+  /* Must be above the shop footer and below modals (z-index 600). */
   z-index: 350; box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-  /* Default position; JS overrides .style.bottom to clear the FAB/shop footer. */
+  /* Default position; JS overrides .style.bottom to clear the shop footer. */
   bottom: calc(env(safe-area-inset-bottom, 0px) + 24px);
   min-height: 44px; max-width: calc(100vw - 2rem);
 }
@@ -565,6 +567,19 @@ button.ghost:hover, .btn-ghost:hover { color: var(--bad); border-color: var(--ba
   min-height: 44px; flex-shrink: 0;
 }
 .toast.hidden { display: none; }
+
+.flash {
+  position: fixed; left: 50%; transform: translateX(-50%);
+  background: #0c1322; color: var(--accent);
+  border: 1px solid var(--accent); border-radius: 8px;
+  padding: 0.7rem 1.2rem; font-weight: 600;
+  z-index: 360; max-width: calc(100vw - 2rem);
+  /* Purely informational — never block clicks on the toast underneath. */
+  pointer-events: none;
+  transition: opacity 0.4s;
+}
+.flash.hidden { opacity: 0; }
+
 
 /* Keyboard shortcut hint */
 kbd {

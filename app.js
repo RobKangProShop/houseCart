@@ -1847,23 +1847,21 @@ function escapeHtml(s) {
 }
 
 let flashTimer = null;
+// Brief informational banner. Never has a button — uses .flash (pointer-events:none)
+// so it can never sit on top of a real toast button.
 function flash(msg) {
   let el = $("flash");
   if (!el) {
     el = document.createElement("div");
     el.id = "flash";
-    el.style.cssText =
-      "position:fixed;left:50%;transform:translateX(-50%);background:#0c1322;color:#38bdf8;padding:0.7rem 1.2rem;border-radius:8px;border:1px solid #38bdf8;z-index:400;font-weight:600;max-width:calc(100vw - 2rem);";
+    el.className = "flash";
     document.body.appendChild(el);
   }
   el.style.bottom = toastBottom();
   el.textContent = msg;
-  el.style.opacity = "1";
+  el.classList.remove("hidden");
   clearTimeout(flashTimer);
-  flashTimer = setTimeout(() => {
-    el.style.opacity = "0";
-    el.style.transition = "opacity 0.4s";
-  }, 1800);
+  flashTimer = setTimeout(() => el.classList.add("hidden"), 1800);
 }
 
 /* ---------------- In-app confirm/alert ----------------
@@ -1927,11 +1925,10 @@ function appConfirm(message, opts = {}) {
   });
 }
 
-/* ---------------- Undo toast ---------------- */
-let undoTimer = null;
+/* ---------------- Toasts (undo + action) ---------------- */
 
-// Compute the bottom offset so toasts always appear above the FAB
-// (or shop footer) without being occluded.
+// Compute the bottom offset so toasts always sit above the shop-mode footer
+// (when open) and otherwise hug the safe-area bottom.
 function toastBottom() {
   const shopMode = $("shopMode");
   const shopOpen = shopMode && !shopMode.classList.contains("hidden");
@@ -1943,51 +1940,36 @@ function toastBottom() {
   return "calc(env(safe-area-inset-bottom, 0px) + 24px)";
 }
 
-function showUndoToast(message, onUndo) {
-  let el = $("undoToast");
+// Generic toast with a single action button.
+// Used by both "Undo" toasts and forward-action toasts (e.g. "Start trip").
+const toastTimers = {};
+function showToast(id, message, actionLabel, onAction) {
+  let el = $(id);
   if (!el) {
     el = document.createElement("div");
-    el.id = "undoToast";
+    el.id = id;
     el.className = "toast";
+    el.innerHTML = `<span class="toast-msg"></span><button class="toast-btn"></button>`;
     document.body.appendChild(el);
   }
-  el.innerHTML = `<span></span><button>Undo</button>`;
-  el.querySelector("span").textContent = message;
+  el.querySelector(".toast-msg").textContent = message;
+  const btn = el.querySelector(".toast-btn");
+  btn.textContent = actionLabel;
   el.style.bottom = toastBottom();
   el.classList.remove("hidden");
-  clearTimeout(undoTimer);
-  const hideToast = () => el.classList.add("hidden");
-  el.querySelector("button").onclick = () => {
-    hideToast();
-    onUndo();
-  };
-  undoTimer = setTimeout(hideToast, 5000);
-}
-
-// Generic action toast — same look as undo, but the button performs a
-// forward action (e.g. "Build trip") rather than reverting state.
-let actionToastTimer = null;
-function showActionToast(message, actionLabel, onAction) {
-  let el = $("actionToast");
-  if (!el) {
-    el = document.createElement("div");
-    el.id = "actionToast";
-    el.className = "toast";
-    document.body.appendChild(el);
-  }
-  el.innerHTML = `<span></span><button></button>`;
-  el.querySelector("span").textContent = message;
-  el.querySelector("button").textContent = actionLabel;
-  el.style.bottom = toastBottom();
-  el.classList.remove("hidden");
-  clearTimeout(actionToastTimer);
-  const hideToast = () => el.classList.add("hidden");
-  el.querySelector("button").onclick = () => {
-    hideToast();
+  clearTimeout(toastTimers[id]);
+  const hide = () => el.classList.add("hidden");
+  btn.onclick = () => {
+    hide();
     onAction();
   };
-  actionToastTimer = setTimeout(hideToast, 5000);
+  toastTimers[id] = setTimeout(hide, 5000);
 }
+
+const showUndoToast = (message, onUndo) =>
+  showToast("undoToast", message, "Undo", onUndo);
+const showActionToast = (message, actionLabel, onAction) =>
+  showToast("actionToast", message, actionLabel, onAction);
 
 /* ---------------- Today screen ---------------- */
 function renderToday() {
