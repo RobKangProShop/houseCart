@@ -609,7 +609,7 @@ function renderAll() {
 function renderSummary() {
   const active = state.items.filter((i) => i.status === "active");
   const monthly = state.items
-    .filter((i) => i.recur && i.cost)
+    .filter((i) => i.status === "active" && i.recur && i.cost)
     .reduce((sum, i) => sum + (i.cost * 30) / (RECUR_DAYS[i.recur] || 30), 0);
   const needsAction = active.filter((i) => !i.autopay && i.category !== "goal");
   const dueSoon = needsAction.filter(
@@ -1141,18 +1141,16 @@ document
 // The hash fragment is NEVER sent to servers (so no logs, no analytics, no
 // CDN, no Pages access log will ever see it). On the receiving device the
 // app reads it once, saves to localStorage, then strips it from the URL.
-document
-  .getElementById("gistShareLinkBtn")
-  ?.addEventListener("click", () => {
-    const { token, gistId } = getGistConfig();
-    if (!token || !gistId) {
-      return appAlert(
-        "Connect this device first (Save & connect, then Push now) so a Gist ID exists.",
-      );
-    }
-    const url = buildSetupLink({ token, gistId });
-    showSetupLinkModal(url);
-  });
+document.getElementById("gistShareLinkBtn")?.addEventListener("click", () => {
+  const { token, gistId } = getGistConfig();
+  if (!token || !gistId) {
+    return appAlert(
+      "Connect this device first (Save & connect, then Push now) so a Gist ID exists.",
+    );
+  }
+  const url = buildSetupLink({ token, gistId });
+  showSetupLinkModal(url);
+});
 
 function showSetupLinkModal(url) {
   const overlay = document.createElement("div");
@@ -1280,8 +1278,7 @@ async function copyToClipboard(text, srcTextarea) {
     const ta = srcTextarea || document.createElement("textarea");
     if (!srcTextarea) {
       ta.value = text;
-      ta.style.cssText =
-        "position:fixed;top:-1000px;left:-1000px;opacity:0;";
+      ta.style.cssText = "position:fixed;top:-1000px;left:-1000px;opacity:0;";
       document.body.appendChild(ta);
     }
     ta.focus();
