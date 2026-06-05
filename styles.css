@@ -479,7 +479,8 @@ kbd {
 
 .shop-header {
   display: flex; align-items: center; gap: 0.75rem;
-  padding: 1rem 1rem 0.75rem;
+  /* Top padding includes safe-area so the ✕ / 🔗 buttons clear the iOS notch */
+  padding: calc(1rem + env(safe-area-inset-top, 0px)) 1rem 0.75rem;
   background: linear-gradient(135deg, #1e3a8a, #4c1d95);
   position: sticky; top: 0;
 }
@@ -502,7 +503,10 @@ kbd {
 }
 
 .shop-body {
-  flex: 1; overflow-y: auto; padding: 1rem; padding-bottom: 6rem;
+  flex: 1; overflow-y: auto; padding: 1rem;
+  /* Leave room for the fixed footer + iOS home indicator so the last
+     item isn't hidden underneath. */
+  padding-bottom: calc(6rem + env(safe-area-inset-bottom, 0px));
   -webkit-overflow-scrolling: touch;
 }
 
@@ -563,7 +567,10 @@ kbd {
 
 .shop-footer {
   position: fixed; bottom: 0; left: 0; right: 0;
-  display: flex; gap: 0.5rem; padding: 0.75rem;
+  display: flex; gap: 0.5rem;
+  /* Always include safe-area-inset-bottom so the buttons clear the
+     iOS home indicator (not just under 600px). */
+  padding: 0.75rem 0.75rem calc(0.75rem + env(safe-area-inset-bottom, 0px));
   background: var(--panel); border-top: 1px solid var(--border);
 }
 .shop-footer button {
@@ -770,7 +777,7 @@ kbd {
   .shop-header h2 { font-size: 1.1rem; }
   .shop-item { padding: 0.85rem; gap: 0.75rem; }
   .shop-item-name { font-size: 1rem; }
-  .shop-footer { padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0)); }
+  /* (.shop-footer safe-area now lives in the base rule above.) */
 }
 
 /* Very narrow phones (e.g. iPhone SE in portrait) */
