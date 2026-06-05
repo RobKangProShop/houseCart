@@ -620,10 +620,10 @@ body.shop-open { overflow: hidden; position: fixed; width: 100%; }
 .shop-mode.hidden { display: none; }
 
 .shop-header {
-  display: flex; align-items: center; gap: 0.5rem;
+  display: flex; align-items: center; gap: 0.4rem;
   /* Top padding includes safe-area so the ✕ / 🔗 buttons clear the iOS notch.
      Kept tight so the banner doesn't eat real estate on phones. */
-  padding: calc(0.25rem + env(safe-area-inset-top, 0px)) 0.6rem 0.25rem;
+  padding: calc(0.15rem + env(safe-area-inset-top, 0px)) 0.5rem 0.15rem;
   background: linear-gradient(135deg, #1e3a8a, #4c1d95);
   /* Stay above scrolling content; also pin the layout so the body can never
      visually slide over the banner. */
@@ -633,22 +633,23 @@ body.shop-open { overflow: hidden; position: fixed; width: 100%; }
 }
 .shop-title {
   flex: 1; min-width: 0;
-  display: flex; align-items: baseline; gap: 0.5rem;
+  display: flex; align-items: baseline; gap: 0.4rem;
   overflow: hidden;
 }
 .shop-title h2 {
-  margin: 0; font-size: 1rem; line-height: 1.2;
+  margin: 0; font-size: 0.95rem; line-height: 1.2; font-weight: 600;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .shop-progress-text {
-  font-size: 0.75rem; color: var(--muted);
+  font-size: 0.72rem; color: var(--muted);
   white-space: nowrap; flex-shrink: 0;
 }
 .shop-icon-btn {
   background: rgba(0,0,0,0.3); color: white; border: none;
-  width: 34px; height: 34px; border-radius: 50%; font-size: 0.95rem;
+  width: 30px; height: 30px; border-radius: 50%; font-size: 0.9rem;
   cursor: pointer; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
+  padding: 0;
 }
 .shop-icon-btn:hover { background: rgba(0,0,0,0.5); }
 

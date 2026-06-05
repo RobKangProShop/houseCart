@@ -1707,7 +1707,7 @@ function renderShopMode() {
   $("shopProgressFill").style.width = total ? `${(done / total) * 100}%` : "0%";
 
   const total$ = shopState.items.reduce((s, i) => s + (i.cost || 0), 0);
-  $("shopTitle").textContent = `Shopping · est. $${total$.toFixed(2)}`;
+  $("shopTitle").textContent = `🛒 $${total$.toFixed(2)}`;
 }
 
 function makeShopItem(item) {
