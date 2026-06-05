@@ -19,6 +19,15 @@ const STORAGE_KEY = "housecart.v1";
 const IDB_NAME = "housecart";
 const IDB_STORE = "kv";
 const IDB_KEY = "state";
+// Layer 2 (backup) and Layer 3 (Gist sync) configuration keys.
+// These MUST be declared up here — not lower in the file — because save()
+// calls helpers that read them, and save() runs from prefillAutopay() on the
+// very first launch (before the file has finished parsing if these consts
+// were declared further down: hello, temporal dead zone).
+const BACKUP_PREFS_KEY = "housecart.backup.intervalDays";
+const GIST_TOKEN_KEY = "housecart.gist.token";
+const GIST_ID_KEY = "housecart.gist.id";
+const GIST_FILENAME = "housecart-state.json";
 const RECUR_DAYS = {
   weekly: 7,
   biweekly: 14,
@@ -2433,7 +2442,7 @@ renderAll();
    native share sheet so they can stash the file in iCloud Drive / Files /
    Google Drive without ever touching a server.
 */
-const BACKUP_PREFS_KEY = "housecart.backup.intervalDays";
+// BACKUP_PREFS_KEY is declared at the top of the file (hoisted to avoid TDZ).
 function getBackupIntervalDays() {
   const v = parseInt(localStorage.getItem(BACKUP_PREFS_KEY) || "7", 10);
   return Number.isFinite(v) && v >= 0 ? v : 7;
@@ -2540,9 +2549,8 @@ function refreshBackupHint() {
    If we detect a conflict (remote newer than local AND local has changes
    since our last sync) we prompt before clobbering.
 */
-const GIST_TOKEN_KEY = "housecart.gist.token";
-const GIST_ID_KEY = "housecart.gist.id";
-const GIST_FILENAME = "housecart-state.json";
+// GIST_TOKEN_KEY / GIST_ID_KEY / GIST_FILENAME are declared at the top of
+// the file (hoisted to avoid TDZ when save() reaches them during startup).
 
 function getGistConfig() {
   return {
