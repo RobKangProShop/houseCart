@@ -14,30 +14,32 @@
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
 <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png" />
 <link rel="apple-touch-icon" href="apple-touch-icon.png" />
-<link rel="stylesheet" href="styles.css?v=47" />
+<link rel="stylesheet" href="styles.css?v=48" />
 </head>
 <body>
-  <header>
-    <h1><img src="icon-192.png" alt="" class="brand-logo" /><span class="brand-text">HouseCart</span></h1>
-    <div class="summary">
-      <button class="summary-tile" data-tile="active" title="Show all active items">
-        <span id="activeCount">0</span><small>active items</small>
-      </button>
-      <button class="summary-tile" data-tile="due-soon" title="Show items due in the next 7 days">
-        <span id="dueSoonCount">0</span><small>due ≤ 7d</small>
-      </button>
-      <button class="summary-tile summary-tile-trip" id="tripQueueTile" data-tile="trip" title="Start trip from queued items">
-        <span id="tripQueueCount">0</span><small>in next trip ▶</small>
-      </button>
-    </div>
-  </header>
+  <div class="top-banner">
+    <header>
+      <h1><img src="icon-192.png" alt="" class="brand-logo" /><span class="brand-text">HouseCart</span></h1>
+      <div class="summary">
+        <button class="summary-tile" data-tile="active" title="Show all active items">
+          <span id="activeCount">0</span><small>active items</small>
+        </button>
+        <button class="summary-tile" data-tile="due-soon" title="Show items due in the next 7 days">
+          <span id="dueSoonCount">0</span><small>due ≤ 7d</small>
+        </button>
+        <button class="summary-tile summary-tile-trip" id="tripQueueTile" data-tile="trip" title="Start trip from queued items">
+          <span id="tripQueueCount">0</span><small>in next trip ▶</small>
+        </button>
+      </div>
+    </header>
 
-  <nav class="tabs">
-    <button class="tab active" data-tab="today">✨ Today</button>
-    <button class="tab" data-tab="recurring">🔁 Recurring <span class="tab-count" id="tabCount-recurring"></span></button>
-    <!-- "More" overflow tab — opens a bottom sheet with secondary navigation -->
-    <button class="tab tab-more" id="moreTabBtn">··· More</button>
-  </nav>
+    <nav class="tabs">
+      <button class="tab active" data-tab="today">✨ Today</button>
+      <button class="tab" data-tab="recurring">🔁 Recurring <span class="tab-count" id="tabCount-recurring"></span></button>
+      <!-- "More" overflow tab — opens a bottom sheet with secondary navigation -->
+      <button class="tab tab-more" id="moreTabBtn">··· More</button>
+    </nav>
+  </div>
 
   <!-- "More" bottom sheet — secondary navigation -->
   <div id="moreSheet" class="more-sheet hidden" aria-modal="true" role="dialog">
@@ -405,6 +407,6 @@ Total                    18.67"></textarea>
     </footer>
   </div>
 
-  <script src="app.js?v=47"></script>
+  <script src="app.js?v=48"></script>
 </body>
 </html>
