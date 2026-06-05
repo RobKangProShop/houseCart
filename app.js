@@ -2082,8 +2082,9 @@ function renderTodayList(rootId, items, emptyMsg) {
     row.innerHTML = `
       <span class="row-main">
         <span class="name">${escapeHtml(i.name)}</span>
-        ${tags || i.cost ? `<span class="row-sub">${tags ? `<span class="meta-tag">${tags}</span>` : ""}${i.cost ? `<span class="cost-tag">$${i.cost.toFixed(2)}</span>` : ""}</span>` : ""}
+        ${tags ? `<span class="row-sub"><span class="meta-tag">${tags}</span></span>` : ""}
       </span>
+      ${i.cost ? `<span class="cost-tag">$${i.cost.toFixed(2)}</span>` : ""}
       <span class="row-actions">
         <button data-act="bought" class="bought-now" title="Mark bought">✓</button>
         <button data-act="queue" class="${i.inTrip ? "queued" : ""}" title="${i.inTrip ? "Remove from trip" : "Add to trip"}">${i.inTrip ? "✕" : "+"}</button>
