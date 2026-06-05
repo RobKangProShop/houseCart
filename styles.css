@@ -588,11 +588,18 @@ kbd {
 }
 
 /* ---------- Shop Mode (full-screen, in-store) ---------- */
+/* Lock background scroll while shop mode is open. Prevents iOS rubber-band
+   from making list items appear over the fixed banner. */
+body.shop-open { overflow: hidden; position: fixed; width: 100%; }
+
 .shop-mode {
   position: fixed; inset: 0; z-index: 300;
   background: #0a0f1e;
   display: flex; flex-direction: column;
   font-size: 1.1rem;
+  /* Use dynamic viewport units so iOS Safari's collapsing URL bar
+     doesn't cut off the footer. */
+  height: 100dvh;
 }
 .shop-mode.hidden { display: none; }
 
@@ -601,7 +608,11 @@ kbd {
   /* Top padding includes safe-area so the ✕ / 🔗 buttons clear the iOS notch */
   padding: calc(1rem + env(safe-area-inset-top, 0px)) 1rem 0.75rem;
   background: linear-gradient(135deg, #1e3a8a, #4c1d95);
-  position: sticky; top: 0;
+  /* Stay above scrolling content; also pin the layout so the body can never
+     visually slide over the banner. */
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
 }
 .shop-title { flex: 1; }
 .shop-title h2 { margin: 0; font-size: 1.25rem; }
@@ -691,6 +702,8 @@ kbd {
      iOS home indicator (not just under 600px). */
   padding: 0.75rem 0.75rem calc(0.75rem + env(safe-area-inset-bottom, 0px));
   background: var(--panel); border-top: 1px solid var(--border);
+  /* Above shop-body scroll content. */
+  z-index: 310;
 }
 .shop-footer button {
   flex: 1; padding: 0.85rem; border-radius: 8px;

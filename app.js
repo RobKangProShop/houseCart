@@ -1626,12 +1626,16 @@ function enterShopMode(itemIds) {
   hide("tripModal");
   show("shopMode");
   $("shopMode").classList.remove("hide-checked");
+  // Lock background scroll so iOS doesn't rubber-band the body behind the
+  // fixed shop overlay (which can make items appear to overlap the header).
+  document.body.classList.add("shop-open");
   renderShopMode();
   requestWakeLock();
 }
 
 function exitShopMode() {
   hide("shopMode");
+  document.body.classList.remove("shop-open");
   releaseWakeLock();
   renderSummary();
 }
