@@ -1043,7 +1043,10 @@ function loadCloudSettingsUI() {
   updateSyncStatus();
   refreshBackupHint();
 }
-loadCloudSettingsUI();
+// NOTE: do NOT call loadCloudSettingsUI() here — it reaches into module-level
+// `const`s (GIST_TOKEN_KEY, etc.) that are declared further down the file and
+// are still in the temporal dead zone at this point. We invoke it from the
+// startup IIFE at the bottom instead.
 
 document.getElementById("gistSaveBtn")?.addEventListener("click", () => {
   const token = document.getElementById("gistToken").value.trim();
@@ -2403,6 +2406,15 @@ renderAll();
     refreshBackupHint();
   } catch (e) {
     console.warn("IDB hydration failed", e);
+  }
+
+  // Populate Settings UI now that all module-level consts (including the
+  // GIST_* constants used by getGistConfig) have been initialized. Calling
+  // this earlier would hit the temporal dead zone.
+  try {
+    loadCloudSettingsUI();
+  } catch (e) {
+    console.warn("Cloud settings UI init failed", e);
   }
 
   // After local persistence is settled, try to pull from cloud (if configured).
