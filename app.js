@@ -2179,6 +2179,7 @@ $("clearQueueBtn")?.addEventListener("click", () => {
 /* ---------------- Help modal ---------------- */
 const helpModal = $("helpModal");
 function openHelp() {
+  closeMoreSheet();
   show(helpModal);
 }
 $("helpBtn")?.addEventListener("click", openHelp);

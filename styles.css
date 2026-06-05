@@ -69,16 +69,6 @@ header h1 { margin: 0; font-size: 1.6rem; }
 .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 /* ··· More tab highlights when a secondary screen is active */
 .tab-more.secondary-active { color: var(--accent); border-bottom-color: var(--accent); }
-/* Help icon: fixed width, not part of flex-1 split */
-.tab.help-tab {
-  flex: 0 0 auto;
-  color: var(--muted);
-  font-weight: 700;
-  font-size: 1rem;
-  padding: 0.85rem 0.8rem;
-  margin-left: 0;
-}
-.tab.help-tab:hover { color: var(--accent); }
 
 /* Tab count badge (e.g. "🛒 All Items (5)") */
 .tab-count {
@@ -98,9 +88,6 @@ header h1 { margin: 0; font-size: 1.6rem; }
   background: var(--accent);
   color: #0c1322;
 }
-
-/* Help button at the end of the tab bar */
-.tab.help-tab:hover { color: var(--accent); }
 
 /* ── "More" bottom sheet ───────────────────────────────────────────────────── */
 .more-sheet {
@@ -788,7 +775,6 @@ kbd {
   .summary small { font-size: 0.6rem; line-height: 1.1; text-align: center; }
 
   .tab { padding: 0.7rem 0.5rem; font-size: 0.88rem; }
-  /* help-tab margin-left:auto is already removed in base rule */
 
   /* ---------- Quick add ---------- */
   .quick-add {
