@@ -1067,32 +1067,42 @@ document.getElementById("gistSaveBtn")?.addEventListener("click", () => {
   if (token) cloudPullOnLaunch();
 });
 document.getElementById("gistSyncBtn")?.addEventListener("click", async () => {
+  // Auto-save inputs so user doesn't have to remember "Save & connect" first.
+  const tokenInput = document.getElementById("gistToken")?.value.trim() || "";
+  const idInput = document.getElementById("gistId")?.value.trim() || "";
+  if (tokenInput || idInput) setGistConfig({ token: tokenInput, gistId: idInput });
   const { token } = getGistConfig();
-  if (!token) return alert("Save your GitHub token first.");
+  if (!token) return appAlert("Save your GitHub token first.");
   try {
     updateSyncStatus("Pushing…");
     await gistPush();
     flash("☁️ Pushed to cloud.");
+    // Refresh the Gist ID input in case gistPush() just created one.
+    const idEl = document.getElementById("gistId");
+    if (idEl) idEl.value = getGistConfig().gistId || "";
   } catch (e) {
-    alert("Push failed: " + e.message);
+    appAlert("Push failed: " + e.message);
     updateSyncStatus();
   }
 });
 document.getElementById("gistPullBtn")?.addEventListener("click", async () => {
+  // Auto-save inputs so user doesn't have to remember "Save & connect" first.
+  const tokenInput = document.getElementById("gistToken")?.value.trim() || "";
+  const idInput = document.getElementById("gistId")?.value.trim() || "";
+  if (tokenInput || idInput) setGistConfig({ token: tokenInput, gistId: idInput });
   const { token, gistId } = getGistConfig();
   if (!token || !gistId)
-    return alert("Configure your token and Gist ID first.");
-  if (
-    !confirm(
-      "Replace your current local data with the cloud version?\nUnsaved local changes will be lost.",
-    )
-  )
-    return;
+    return appAlert("Enter both a GitHub token AND a Gist ID, then tap Pull.");
+  const ok = await appConfirm(
+    "Replace your current local data with the cloud version?\nUnsaved local changes will be lost.",
+    { okText: "Pull from cloud" },
+  );
+  if (!ok) return;
   try {
     updateSyncStatus("Pulling…");
     const remote = await gistPull();
     if (!remote) {
-      alert("Gist is empty.");
+      await appAlert("Gist is empty — nothing to pull yet.");
       updateSyncStatus();
       return;
     }
@@ -1102,12 +1112,16 @@ document.getElementById("gistPullBtn")?.addEventListener("click", async () => {
     renderAll();
     flash("☁️ Pulled from cloud.");
   } catch (e) {
-    alert("Pull failed: " + e.message);
+    appAlert("Pull failed: " + e.message);
     updateSyncStatus();
   }
 });
-document.getElementById("gistDisableBtn")?.addEventListener("click", () => {
-  if (!confirm("Disconnect cloud sync? Your local data is unaffected.")) return;
+document.getElementById("gistDisableBtn")?.addEventListener("click", async () => {
+  const ok = await appConfirm(
+    "Disconnect cloud sync? Your local data is unaffected.",
+    { okText: "Disconnect" },
+  );
+  if (!ok) return;
   setGistConfig({ token: "", gistId: "" });
   const t = document.getElementById("gistToken");
   const i = document.getElementById("gistId");
@@ -1689,6 +1703,67 @@ function flash(msg) {
     el.style.opacity = "0";
     el.style.transition = "opacity 0.4s";
   }, 1800);
+}
+
+/* ---------------- In-app confirm/alert ----------------
+   iOS Safari in PWA (Home Screen) standalone mode silently suppresses
+   native alert()/confirm()/prompt(). These helpers replace them with a
+   real DOM modal so flows keep working. */
+function appAlert(message) {
+  return appConfirm(message, { okOnly: true });
+}
+function appConfirm(message, opts = {}) {
+  const { okText = "OK", cancelText = "Cancel", okOnly = false } = opts;
+  return new Promise((resolve) => {
+    const overlay = document.createElement("div");
+    overlay.setAttribute("role", "dialog");
+    overlay.setAttribute("aria-modal", "true");
+    overlay.style.cssText =
+      "position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:600;" +
+      "display:flex;align-items:center;justify-content:center;padding:1rem;";
+    const box = document.createElement("div");
+    box.style.cssText =
+      "background:#0c1322;color:#e2e8f0;border:1px solid #334155;" +
+      "border-radius:12px;padding:1.2rem;max-width:420px;width:100%;" +
+      "box-shadow:0 10px 40px rgba(0,0,0,0.5);";
+    const text = document.createElement("p");
+    text.style.cssText =
+      "margin:0 0 1rem 0;white-space:pre-line;line-height:1.4;font-size:1rem;";
+    text.textContent = message;
+    const row = document.createElement("div");
+    row.style.cssText =
+      "display:flex;gap:0.6rem;justify-content:flex-end;flex-wrap:wrap;";
+    const finish = (val) => {
+      document.removeEventListener("keydown", onKey);
+      overlay.remove();
+      resolve(val);
+    };
+    const onKey = (e) => {
+      if (e.key === "Escape" && !okOnly) finish(false);
+      else if (e.key === "Enter") finish(true);
+    };
+    document.addEventListener("keydown", onKey);
+    if (!okOnly) {
+      const cancel = document.createElement("button");
+      cancel.type = "button";
+      cancel.className = "secondary";
+      cancel.textContent = cancelText;
+      cancel.style.minHeight = "44px";
+      cancel.addEventListener("click", () => finish(false));
+      row.appendChild(cancel);
+    }
+    const ok = document.createElement("button");
+    ok.type = "button";
+    ok.textContent = okText;
+    ok.style.minHeight = "44px";
+    ok.addEventListener("click", () => finish(true));
+    row.appendChild(ok);
+    box.appendChild(text);
+    box.appendChild(row);
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+    setTimeout(() => ok.focus(), 0);
+  });
 }
 
 /* ---------------- Undo toast ---------------- */
@@ -2688,10 +2763,11 @@ async function cloudPullOnLaunch() {
     const haveUnsynced =
       state.updatedAt && (!state.lastSync || state.updatedAt > state.lastSync);
     if (haveUnsynced) {
-      const ok = confirm(
+      const ok = await appConfirm(
         `Cloud has a newer version from ${new Date(remoteTs).toLocaleString()}.\n\n` +
           `Your unsynced local changes will be REPLACED.\n\n` +
-          `Click OK to use the cloud version, or Cancel to keep local and push it instead.`,
+          `Tap "Use cloud" to replace local, or "Keep local" to push your version instead.`,
+        { okText: "Use cloud", cancelText: "Keep local" },
       );
       if (!ok) {
         // User chose local; push it.
