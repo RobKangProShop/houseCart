@@ -51,24 +51,32 @@ header h1 { margin: 0; font-size: 1.6rem; }
 .tabs {
   display: flex;
   flex-wrap: nowrap;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
+  overflow-x: hidden; /* no horizontal scroll — 4 tabs always fit */
   background: var(--panel);
   border-bottom: 1px solid var(--border);
-  padding: 0 0.5rem;
-  scrollbar-width: thin;
+  padding: 0 0.25rem;
 }
-.tabs::-webkit-scrollbar { height: 4px; }
-.tabs::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 .tab {
   background: transparent; color: var(--muted); border: none;
-  padding: 0.85rem 1rem; cursor: pointer; font-size: 0.95rem;
+  padding: 0.85rem 0.9rem; cursor: pointer; font-size: 0.95rem;
   border-bottom: 3px solid transparent;
-  flex-shrink: 0;
-  white-space: nowrap;
+  flex: 1;               /* primary tabs share equal width */
+  white-space: nowrap; text-align: center;
 }
 .tab:hover { color: var(--text); }
 .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+/* ··· More tab highlights when a secondary screen is active */
+.tab-more.secondary-active { color: var(--accent); border-bottom-color: var(--accent); }
+/* Help icon: fixed width, not part of flex-1 split */
+.tab.help-tab {
+  flex: 0 0 auto;
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 0.85rem 0.8rem;
+  margin-left: 0;
+}
+.tab.help-tab:hover { color: var(--accent); }
 
 /* Tab count badge (e.g. "🛒 All Items (5)") */
 .tab-count {
@@ -89,14 +97,68 @@ header h1 { margin: 0; font-size: 1.6rem; }
   color: #0c1322;
 }
 
-/* Help button at the end of the tab bar — stays visible but visually distinct */
-.tab.help-tab {
-  margin-left: auto;
-  color: var(--muted);
-  font-weight: 700;
-  font-size: 1rem;
-}
+/* Help button at the end of the tab bar */
 .tab.help-tab:hover { color: var(--accent); }
+
+/* ── "More" bottom sheet ───────────────────────────────────────────────────── */
+.more-sheet {
+  position: fixed; inset: 0; z-index: 500;
+  display: flex; flex-direction: column; justify-content: flex-end;
+}
+.more-sheet.hidden { display: none; }
+.more-sheet-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+.more-sheet-panel {
+  position: relative;
+  background: var(--panel);
+  border-radius: 20px 20px 0 0;
+  border: 1px solid var(--border);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  /* Slide up animation */
+  animation: sheet-up 0.22s ease;
+}
+@keyframes sheet-up {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+.more-sheet-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 1rem 1.2rem 0.6rem;
+  border-bottom: 1px solid var(--border);
+  font-weight: 700; font-size: 1.05rem;
+}
+.more-sheet-close {
+  background: var(--panel-2); border: none; color: var(--muted);
+  width: 32px; height: 32px; border-radius: 50%; cursor: pointer;
+  font-size: 1rem; display: flex; align-items: center; justify-content: center;
+}
+.more-sheet-close:hover { color: var(--text); }
+.more-sheet-nav {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  padding: 0.8rem 1rem 1.2rem;
+}
+.more-nav-item {
+  display: flex; align-items: center; gap: 0.75rem;
+  background: var(--panel-2); border: 1px solid var(--border);
+  border-radius: 12px; padding: 0.85rem 1rem;
+  cursor: pointer; min-height: 60px;
+  transition: border-color 0.15s, background 0.15s;
+  text-align: left;
+}
+.more-nav-item:hover { border-color: var(--accent); background: rgba(56,189,248,0.06); }
+.more-nav-item.active { border-color: var(--accent); color: var(--accent); }
+.more-nav-icon { font-size: 1.4rem; flex-shrink: 0; line-height: 1; }
+.more-nav-label {
+  font-size: 0.92rem; font-weight: 600; color: var(--text);
+  display: flex; flex-direction: column; gap: 0.2rem;
+}
+.more-count { display: block; }
 
 .quick-add {
   display: flex; gap: 0.5rem;
@@ -713,9 +775,8 @@ kbd {
   .summary span { font-size: 0.95rem; }
   .summary small { font-size: 0.6rem; line-height: 1.1; text-align: center; }
 
-  .tab { padding: 0.7rem 0.7rem; font-size: 0.88rem; }
-  /* margin-left:auto breaks inside an overflow-x:auto container; pin via order */
-  .tab.help-tab { margin-left: 0; }
+  .tab { padding: 0.7rem 0.5rem; font-size: 0.88rem; }
+  /* help-tab margin-left:auto is already removed in base rule */
 
   /* ---------- Quick add ---------- */
   .quick-add {

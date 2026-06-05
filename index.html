@@ -29,14 +29,41 @@
 
   <nav class="tabs">
     <button class="tab active" data-tab="today">✨ Today</button>
-    <button class="tab" data-tab="list">🛒 All Items <span class="tab-count" id="tabCount-list"></span></button>
+    <button class="tab" data-tab="list">🛒 Items <span class="tab-count" id="tabCount-list"></span></button>
     <button class="tab" data-tab="recurring">🔁 Recurring <span class="tab-count" id="tabCount-recurring"></span></button>
-    <button class="tab" data-tab="goals">🎯 Goals <span class="tab-count" id="tabCount-goals"></span></button>
-    <button class="tab" data-tab="suggestions">💡 Suggestions <span class="tab-count" id="tabCount-suggestions"></span></button>
-    <button class="tab" data-tab="history">📜 History <span class="tab-count" id="tabCount-history"></span></button>
-    <button class="tab" data-tab="settings">⚙️</button>
-    <button class="tab help-tab" id="helpBtn" title="Keyboard shortcuts (?)">?</button>
+    <!-- "More" overflow tab — opens a bottom sheet with secondary navigation -->
+    <button class="tab tab-more" id="moreTabBtn">··· More</button>
+    <button class="tab help-tab" id="helpBtn" title="Help &amp; shortcuts">?</button>
   </nav>
+
+  <!-- "More" bottom sheet — secondary navigation -->
+  <div id="moreSheet" class="more-sheet hidden" aria-modal="true" role="dialog">
+    <div class="more-sheet-backdrop"></div>
+    <div class="more-sheet-panel">
+      <div class="more-sheet-header">
+        <span>More</span>
+        <button id="moreSheetCloseBtn" class="more-sheet-close" aria-label="Close">✕</button>
+      </div>
+      <div class="more-sheet-nav">
+        <button class="more-nav-item" data-tab="goals">
+          <span class="more-nav-icon">🎯</span>
+          <span class="more-nav-label">Goals <span class="tab-count more-count" id="tabCount-goals"></span></span>
+        </button>
+        <button class="more-nav-item" data-tab="suggestions">
+          <span class="more-nav-icon">💡</span>
+          <span class="more-nav-label">Suggestions <span class="tab-count more-count" id="tabCount-suggestions"></span></span>
+        </button>
+        <button class="more-nav-item" data-tab="history">
+          <span class="more-nav-icon">📜</span>
+          <span class="more-nav-label">History <span class="tab-count more-count" id="tabCount-history"></span></span>
+        </button>
+        <button class="more-nav-item" data-tab="settings">
+          <span class="more-nav-icon">⚙️</span>
+          <span class="more-nav-label">Settings</span>
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- Quick add bar (always visible) -->
   <section class="quick-add">
@@ -331,7 +358,7 @@ Total                    18.67"></textarea>
         <tr><td><kbd>/</kbd> &nbsp; <kbd>F</kbd></td><td>Focus global search</td></tr>
         <tr><td><kbd>G</kbd></td><td>Generate trip from urgent + upcoming items</td></tr>
         <tr><td><kbd>V</kbd></td><td>Start voice add</td></tr>
-        <tr><td><kbd>1</kbd>–<kbd>7</kbd></td><td>Switch tabs</td></tr>
+        <tr><td><kbd>1</kbd>–<kbd>7</kbd></td><td>Switch tabs (Today / Items / Recurring / Goals / Suggestions / History / Settings)</td></tr>
         <tr><td><kbd>Esc</kbd></td><td>Close modal / blur input</td></tr>
         <tr><td><kbd>?</kbd></td><td>This help</td></tr>
       </table>

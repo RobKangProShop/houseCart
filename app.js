@@ -148,29 +148,68 @@ function uid() {
   return Math.random().toString(36).slice(2, 10);
 }
 
-/* ---------------- Tabs ---------------- */
-document.querySelectorAll(".tab").forEach((t) => {
-  t.addEventListener("click", () => {
-    // The help button is styled as a tab but has no panel — it opens a modal
-    // elsewhere. Bail out so we don't try to activate a non-existent panel.
-    if (!t.dataset.tab) return;
-    document
-      .querySelectorAll(".tab")
-      .forEach((x) => x.classList.remove("active"));
-    document
-      .querySelectorAll(".tab-panel")
-      .forEach((x) => x.classList.remove("active"));
-    t.classList.add("active");
-    document.getElementById("tab-" + t.dataset.tab).classList.add("active");
-    // On mobile the tab bar is horizontally scrollable; ensure the newly
-    // active tab is visible (especially when triggered by keyboard 1–7).
-    t.scrollIntoView({
-      behavior: "smooth",
-      block: "nearest",
-      inline: "center",
-    });
-  });
+/* ---------------- Tabs + More sheet ---------------- */
+// Secondary tabs live in the More sheet, not the primary tab bar.
+const SECONDARY_TABS = new Set(["goals", "suggestions", "history", "settings"]);
+
+function switchTab(tabName) {
+  const isSecondary = SECONDARY_TABS.has(tabName);
+  // Deactivate all primary tabs
+  document.querySelectorAll(".tab[data-tab]").forEach((x) => x.classList.remove("active"));
+  // Deactivate all panels
+  document.querySelectorAll(".tab-panel").forEach((x) => x.classList.remove("active"));
+  // Deactivate more-nav items
+  document.querySelectorAll(".more-nav-item").forEach((x) => x.classList.remove("active"));
+
+  // Activate the target panel
+  const panel = document.getElementById("tab-" + tabName);
+  if (panel) panel.classList.add("active");
+
+  // Update tab bar active indicator
+  const primaryTab = document.querySelector(`.tab[data-tab="${tabName}"]`);
+  if (primaryTab) {
+    primaryTab.classList.add("active");
+  }
+  // Highlight the More button when a secondary tab is shown
+  const moreBtn = document.getElementById("moreTabBtn");
+  if (moreBtn) moreBtn.classList.toggle("secondary-active", isSecondary);
+  // Highlight the matching more-nav item
+  const moreItem = document.querySelector(`.more-nav-item[data-tab="${tabName}"]`);
+  if (moreItem) moreItem.classList.add("active");
+  // Close the sheet after navigation
+  closeMoreSheet();
+}
+
+function openMoreSheet() {
+  document.getElementById("moreSheet")?.classList.remove("hidden");
+}
+function closeMoreSheet() {
+  document.getElementById("moreSheet")?.classList.add("hidden");
+}
+
+// Primary tab bar clicks
+document.querySelectorAll(".tab[data-tab]").forEach((t) => {
+  t.addEventListener("click", () => switchTab(t.dataset.tab));
 });
+
+// More button opens the sheet
+document.getElementById("moreTabBtn")?.addEventListener("click", openMoreSheet);
+
+// More sheet navigation items
+document.querySelectorAll(".more-nav-item[data-tab]").forEach((t) => {
+  t.addEventListener("click", () => switchTab(t.dataset.tab));
+});
+
+// Close the sheet via backdrop or close button
+document.querySelector(".more-sheet-backdrop")?.addEventListener("click", closeMoreSheet);
+document.getElementById("moreSheetCloseBtn")?.addEventListener("click", closeMoreSheet);
+
+// Keyboard shortcut: Escape closes the sheet
+// (handled in the global keydown below, but also wire it here defensively)
+document.getElementById("moreSheet")?.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") closeMoreSheet();
+});
+
 
 /* ---------------- Quick add (natural language) ---------------- */
 const STORE_HINTS = [
@@ -982,7 +1021,7 @@ document
 // to the All Items tab and re-renders. Filter logic reads #globalSearch directly.
 document.getElementById("globalSearch")?.addEventListener("input", () => {
   const listTab = document.querySelector('.tab[data-tab="list"]');
-  if (listTab && !listTab.classList.contains("active")) listTab.click();
+  if (listTab && !listTab.classList.contains("active")) switchTab("list");
   renderList();
 });
 
@@ -2271,14 +2310,11 @@ document.addEventListener("keydown", (e) => {
         .forEach((m) => m.classList.add("hidden"));
       break;
     default:
-      // Numbered tabs
+      // Numbered tabs: 1=Today 2=Items 3=Recurring 4=Goals 5=Suggestions 6=History 7=Settings
       if (/^[1-7]$/.test(e.key)) {
-        const tabs = document.querySelectorAll(".tab");
-        const idx = parseInt(e.key, 10) - 1;
-        if (tabs[idx]) {
-          e.preventDefault();
-          tabs[idx].click();
-        }
+        const tabNames = ["today", "list", "recurring", "goals", "suggestions", "history", "settings"];
+        const name = tabNames[parseInt(e.key, 10) - 1];
+        if (name) { e.preventDefault(); switchTab(name); }
       }
   }
 });
