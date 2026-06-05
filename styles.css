@@ -42,13 +42,21 @@ header {
 }
 header h1 { margin: 0; font-size: 1.6rem; }
 .summary { display: flex; gap: 1.5rem; }
-.summary > div {
+/* All three header tiles share the same shape; the trip tile additionally
+   uses .summary-tile-trip + .has-queue for an accent state. */
+.summary-tile {
   display: flex; flex-direction: column; align-items: center;
   background: rgba(0,0,0,0.25); padding: 0.5rem 0.9rem; border-radius: 8px;
-  min-width: 0; flex: 1 1 auto; /* shrink to fit, no fixed floor */
+  min-width: 0; flex: 1 1 auto;
+  border: 1px solid transparent; cursor: pointer;
+  font: inherit; color: inherit;
+  transition: border-color 0.15s, background 0.15s;
 }
-.summary span { font-size: 1.25rem; font-weight: 700; color: var(--accent); }
-.summary small { font-size: 0.7rem; color: var(--muted); }
+.summary-tile:hover { border-color: var(--accent); background: rgba(56,189,248,0.18); }
+.summary-tile span { font-size: 1.25rem; font-weight: 700; color: var(--accent); }
+.summary-tile small { font-size: 0.7rem; color: var(--muted); }
+.summary-tile-trip.has-queue { border-color: var(--accent); background: rgba(56,189,248,0.12); }
+.summary-tile-trip.has-queue small { color: var(--accent); }
 
 .tabs {
   display: flex;
@@ -796,12 +804,9 @@ body.shop-open { overflow: hidden; position: fixed; width: 100%; }
   }
   header h1 { font-size: 1.25rem; }
   .summary { width: 100%; gap: 0.4rem; justify-content: space-between; flex-wrap: nowrap; }
-  .summary > div {
-    min-width: 0; flex: 1;
-    padding: 0.35rem 0.4rem;
-  }
-  .summary span { font-size: 0.95rem; }
-  .summary small { font-size: 0.6rem; line-height: 1.1; text-align: center; }
+  .summary-tile { padding: 0.35rem 0.4rem; }
+  .summary-tile span { font-size: 0.95rem; }
+  .summary-tile small { font-size: 0.6rem; line-height: 1.1; text-align: center; }
 
   .tab { padding: 0.7rem 0.5rem; font-size: 0.88rem; }
 
@@ -903,27 +908,9 @@ body.shop-open { overflow: hidden; position: fixed; width: 100%; }
 
 /* Very narrow phones (e.g. iPhone SE in portrait) */
 @media (max-width: 380px) {
-  .summary > div { padding: 0.3rem 0.25rem; }
-  .summary span { font-size: 0.85rem; }
-  .summary small { font-size: 0.55rem; }
+  .summary-tile { padding: 0.3rem 0.25rem; }
+  .summary-tile span { font-size: 0.85rem; }
+  .summary-tile small { font-size: 0.55rem; }
   .card-actions .ca { font-size: 0.76rem; padding: 0.5rem 0.3rem; }
   .tab { padding: 0.7rem 0.55rem; font-size: 0.82rem; }
-}
-
-/* Summary header — "in next trip" tile is tappable to launch Shop Mode */
-.summary-trip-tile {
-  display: flex; flex-direction: column; align-items: center;
-  background: rgba(0,0,0,0.25); padding: 0.5rem 0.9rem; border-radius: 8px;
-  min-width: 90px; border: 1px solid transparent;
-  cursor: pointer; transition: border-color 0.15s, background 0.15s;
-}
-.summary-trip-tile span { font-size: 1.25rem; font-weight: 700; color: var(--accent); }
-.summary-trip-tile small { font-size: 0.7rem; color: var(--muted); }
-.summary-trip-tile.has-queue { border-color: var(--accent); background: rgba(56,189,248,0.12); }
-.summary-trip-tile.has-queue small { color: var(--accent); }
-.summary-trip-tile:hover { border-color: var(--accent); background: rgba(56,189,248,0.18); }
-@media (max-width: 600px) {
-  .summary-trip-tile { min-width: 0; flex: 1; padding: 0.35rem 0.4rem; }
-  .summary-trip-tile span { font-size: 0.95rem; }
-  .summary-trip-tile small { font-size: 0.6rem; line-height: 1.1; text-align: center; }
 }

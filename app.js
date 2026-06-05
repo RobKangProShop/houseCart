@@ -661,15 +661,11 @@ function renderAll() {
 
 function renderSummary() {
   const active = state.items.filter((i) => i.status === "active");
-  const monthly = state.items
-    .filter((i) => i.status === "active" && i.recur && i.cost)
-    .reduce((sum, i) => sum + (i.cost * 30) / (RECUR_DAYS[i.recur] || 30), 0);
   const needsAction = active.filter((i) => !i.autopay && i.category !== "goal");
   const dueSoon = needsAction.filter(
     (i) => daysUntil(i.due) !== null && daysUntil(i.due) <= 7,
   ).length;
   const inTrip = active.filter((i) => i.inTrip && !i.autopay).length;
-  $("monthlyRecurring").textContent = "$" + monthly.toFixed(0);
   $("activeCount").textContent = needsAction.length;
   $("dueSoonCount").textContent = dueSoon;
   $("tripQueueCount").textContent = inTrip;
@@ -770,12 +766,20 @@ function renderList() {
   root.innerHTML = "";
   const cat = $("filterCategory").value;
   const prio = $("filterPriority").value;
+  const due = $("filterDue")?.value || "";
   // Search reads from the always-visible global search input.
   const q = ($("globalSearch")?.value || "").trim().toLowerCase();
   const items = state.items
     .filter((i) => i.status === "active" && i.category !== "goal" && !i.autopay)
     .filter((i) => !cat || i.category === cat)
     .filter((i) => !prio || i.priority === prio)
+    .filter((i) => {
+      if (!due) return true;
+      const d = daysUntil(i.due);
+      if (d === null) return false;
+      if (due === "overdue") return d < 0;
+      return d <= Number(due);
+    })
     .filter(
       (i) =>
         !q ||
@@ -1006,7 +1010,7 @@ function renderHistory() {
 }
 
 /* ---------------- Filters wiring ---------------- */
-["filterCategory", "filterPriority"].forEach((id) =>
+["filterCategory", "filterPriority", "filterDue"].forEach((id) =>
   $(id).addEventListener("input", renderList),
 );
 $("showAutopay").addEventListener("change", renderRecurring);
@@ -2126,14 +2130,38 @@ $("generateFromQueueBtn").addEventListener("click", () => {
   generateTrip({ onlyQueued: true, skipPreview: true });
 });
 
-// Header tile "in next trip" — tap to go straight to Shop Mode from anywhere.
-$("tripQueueTile")?.addEventListener("click", () => {
-  const queue = state.items.filter((i) => i.status === "active" && i.inTrip);
-  if (!queue.length) {
-    flash("Trip queue is empty. Use + Trip on any item.");
-    return;
+// Header summary tiles — single delegated handler covers all three:
+//   - active items → open Items tab, clear filters
+//   - due ≤ 7d     → open Items tab, filter by "Due ≤ 7 days"
+//   - trip queue   → start Shop Mode from queued items
+document.querySelector(".summary")?.addEventListener("click", (e) => {
+  const tile = e.target.closest(".summary-tile");
+  if (!tile) return;
+  switch (tile.dataset.tile) {
+    case "active":
+      $("filterCategory").value = "";
+      $("filterPriority").value = "";
+      $("filterDue").value = "";
+      renderList();
+      switchTab("list");
+      break;
+    case "due-soon":
+      $("filterCategory").value = "";
+      $("filterPriority").value = "";
+      $("filterDue").value = "7";
+      renderList();
+      switchTab("list");
+      break;
+    case "trip": {
+      const queue = state.items.filter((i) => i.status === "active" && i.inTrip);
+      if (!queue.length) {
+        flash("Trip queue is empty. Use + Trip on any item.");
+        return;
+      }
+      generateTrip({ onlyQueued: true, skipPreview: true });
+      break;
+    }
   }
-  generateTrip({ onlyQueued: true, skipPreview: true });
 });
 
 // "Clear" — dequeue every item in one click (with undo).

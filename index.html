@@ -14,16 +14,19 @@
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
 <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png" />
 <link rel="apple-touch-icon" href="apple-touch-icon.png" />
-<link rel="stylesheet" href="styles.css?v=37" />
+<link rel="stylesheet" href="styles.css?v=38" />
 </head>
 <body>
   <header>
     <h1>🏠 HouseCart</h1>
     <div class="summary">
-      <div><span id="monthlyRecurring">$0</span><small>recurring / mo</small></div>
-      <div><span id="activeCount">0</span><small>active items</small></div>
-      <div><span id="dueSoonCount">0</span><small>due ≤ 7d</small></div>
-      <button id="tripQueueTile" class="summary-trip-tile" title="Start trip from queued items">
+      <button class="summary-tile" data-tile="active" title="Show all active items">
+        <span id="activeCount">0</span><small>active items</small>
+      </button>
+      <button class="summary-tile" data-tile="due-soon" title="Show items due in the next 7 days">
+        <span id="dueSoonCount">0</span><small>due ≤ 7d</small>
+      </button>
+      <button class="summary-tile summary-tile-trip" id="tripQueueTile" data-tile="trip" title="Start trip from queued items">
         <span id="tripQueueCount">0</span><small>in next trip ▶</small>
       </button>
     </div>
@@ -134,6 +137,12 @@
         <option value="urgent">Urgent</option>
         <option value="normal">Normal</option>
         <option value="someday">Someday</option>
+      </select>
+      <select id="filterDue">
+        <option value="">Any due date</option>
+        <option value="overdue">Overdue</option>
+        <option value="7">Due ≤ 7 days</option>
+        <option value="30">Due ≤ 30 days</option>
       </select>
     </div>
     <div id="itemList" class="card-grid"></div>
@@ -397,6 +406,6 @@ Total                    18.67"></textarea>
     </footer>
   </div>
 
-  <script src="app.js?v=37"></script>
+  <script src="app.js?v=38"></script>
 </body>
 </html>
