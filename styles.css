@@ -377,6 +377,7 @@ header h1 { margin: 0; font-size: 1.6rem; }
   background: var(--panel); border: 1px solid var(--border);
   border-radius: 12px; padding: 1.1rem; display: flex; flex-direction: column; gap: 0.6rem;
   min-height: 200px;
+  min-width: 0; /* don't let min-content of children blow past the grid track */
 }
 .today-card h3 {
   margin: 0; font-size: 1rem;
