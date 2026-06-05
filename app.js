@@ -1018,8 +1018,8 @@ $("showAutopay").addEventListener("change", renderRecurring);
 // Global search (header / quick-add bar): always-visible search that jumps
 // to the All Items tab and re-renders. Filter logic reads #globalSearch directly.
 $("globalSearch")?.addEventListener("input", () => {
-  const listTab = document.querySelector('.tab[data-tab="list"]');
-  if (listTab && !listTab.classList.contains("active")) switchTab("list");
+  const listPanel = $("tab-list");
+  if (listPanel && !listPanel.classList.contains("active")) switchTab("list");
   renderList();
 });
 
@@ -2153,7 +2153,9 @@ document.querySelector(".summary")?.addEventListener("click", (e) => {
       switchTab("list");
       break;
     case "trip": {
-      const queue = state.items.filter((i) => i.status === "active" && i.inTrip);
+      const queue = state.items.filter(
+        (i) => i.status === "active" && i.inTrip,
+      );
       if (!queue.length) {
         flash("Trip queue is empty. Use + Trip on any item.");
         return;
