@@ -178,12 +178,13 @@
     <details class="hint">
       <summary>How to set this up (one time, ~2 min)</summary>
       <ol>
-        <li>Go to <a href="https://github.com/settings/tokens?type=beta" target="_blank" rel="noopener">github.com/settings/tokens</a> and create a <strong>fine-grained</strong> Personal Access Token.</li>
-        <li>Set Repository access: <strong>Public Repositories (read-only)</strong> — we don't touch repos.</li>
-        <li>Under Account permissions, set <strong>Gists: Read and write</strong>. (Classic tokens: pick only the <code>gist</code> scope.)</li>
-        <li>Pick a short expiration (e.g. 90 days) and copy the token.</li>
+        <li><strong>Important:</strong> use a <strong>classic</strong> token, not fine-grained. (GitHub's fine-grained PATs cannot access the Gist API — they return 403.)</li>
+        <li>Go to <a href="https://github.com/settings/tokens/new" target="_blank" rel="noopener">github.com/settings/tokens/new</a></li>
+        <li>Note: <code>HouseCart sync</code> · Expiration: 90 days</li>
+        <li>Under <strong>Select scopes</strong>, check only <code>gist</code> (under "Create gists"). Leave everything else unchecked.</li>
+        <li>Click <strong>Generate token</strong> and copy the <code>ghp_…</code> value (shown only once).</li>
         <li>Paste it below. Leave Gist ID blank — the first save creates a private Gist automatically.</li>
-        <li>On your other devices, paste the <strong>same token</strong> and the <strong>same Gist ID</strong> (visible after the first sync).</li>
+        <li>On your other devices, paste the <strong>same token</strong> and the <strong>same Gist ID</strong> (visible here after the first sync).</li>
       </ol>
     </details>
     <p class="hint warn-text">

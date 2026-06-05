@@ -114,8 +114,9 @@ The Export/Import JSON buttons in Settings remain your manual escape hatch.
   Gist token. **All three live unencrypted in this browser's localStorage.**
   Anyone with access to this browser profile (or a malicious extension) can
   read them.
-- Use a GitHub fine-grained PAT scoped to **Gists: Read and write only**;
-  rotate it periodically.
+- Use a GitHub **classic** PAT with **only the `gist` scope** checked
+  (GitHub's fine-grained PATs cannot access the Gist API). Rotate every
+  ~90 days.
 - No data ever leaves the browser unless you (a) enable Gist sync or (b)
   enable the optional LLM API key for parsing.
 
