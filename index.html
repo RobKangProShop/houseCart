@@ -23,7 +23,9 @@
       <div><span id="monthlyRecurring">$0</span><small>recurring / mo</small></div>
       <div><span id="activeCount">0</span><small>active items</small></div>
       <div><span id="dueSoonCount">0</span><small>due ≤ 7d</small></div>
-      <div><span id="tripQueueCount">0</span><small>in next trip</small></div>
+      <button id="tripQueueTile" class="summary-trip-tile" title="Start trip from queued items">
+        <span id="tripQueueCount">0</span><small>in next trip ▶</small>
+      </button>
     </div>
   </header>
 
@@ -391,12 +393,6 @@ Total                    18.67"></textarea>
       <button id="shopFinishBtn" class="primary">✓ Finish trip</button>
     </footer>
   </div>
-
-  <!-- Floating action button: appears on any tab when items are queued -->
-  <button id="buildTripFab" class="fab hidden" title="Start trip from queue">
-    🛍️ Start trip
-    <span class="fab-count">0</span>
-  </button>
 
   <script src="app.js"></script>
 </body>

@@ -599,7 +599,7 @@ function toggleTripQueue(id) {
     ).length;
     showActionToast(
       `Added to trip queue (${queueCount}).`,
-      "�️ Start trip",
+      "\uD83D\uDECD\uFE0F Start trip",
       () => generateTrip({ onlyQueued: true, skipPreview: true }),
     );
   }
@@ -671,23 +671,12 @@ function renderSummary() {
     (i) => daysUntil(i.due) !== null && daysUntil(i.due) <= 7,
   ).length;
   const inTrip = active.filter((i) => i.inTrip && !i.autopay).length;
-  $("monthlyRecurring").textContent =
-    "$" + monthly.toFixed(0);
+  $("monthlyRecurring").textContent = "$" + monthly.toFixed(0);
   $("activeCount").textContent = needsAction.length;
   $("dueSoonCount").textContent = dueSoon;
   $("tripQueueCount").textContent = inTrip;
-
-  // Floating "Build trip" button: visible from any tab whenever the queue has
-  // items, so users can always get to the trip modal in one click.
-  const fab = $("buildTripFab");
-  if (fab) {
-    if (inTrip > 0) {
-      show(fab);
-      fab.querySelector(".fab-count").textContent = inTrip;
-    } else {
-      hide(fab);
-    }
-  }
+  // Highlight the trip tile when the queue has items
+  $("tripQueueTile")?.classList.toggle("has-queue", inTrip > 0);
 
   // Tab count badges — mirror what each tab actually renders, so users can
   // see at a glance where action is needed without clicking through.
@@ -760,7 +749,6 @@ function makeCard(item) {
       <button class="ca ca-bought" data-act="bought">✓ Bought</button>
       <button class="ca ca-trip${item.inTrip ? " queued" : ""}" data-act="queue">${item.inTrip ? "✕ Remove" : "+ Trip"}</button>
       <button class="ca" data-act="dup" title="Duplicate as a new active item" aria-label="Duplicate">⧉ Copy</button>
-      <button class="ca" data-act="edit">✏️ Edit</button>
     </div>
   `;
   div.querySelector('[data-act="bought"]').addEventListener("click", (e) => {
@@ -774,10 +762,6 @@ function makeCard(item) {
   div.querySelector('[data-act="dup"]').addEventListener("click", (e) => {
     e.stopPropagation();
     duplicateItem(item.id);
-  });
-  div.querySelector('[data-act="edit"]').addEventListener("click", (e) => {
-    e.stopPropagation();
-    openModal(item);
   });
   div.addEventListener("click", () => openModal(item));
   return div;
@@ -1642,7 +1626,6 @@ function enterShopMode(itemIds) {
   hide("tripModal");
   show("shopMode");
   $("shopMode").classList.remove("hide-checked");
-  hide("buildTripFab");
   renderShopMode();
   requestWakeLock();
 }
@@ -1650,7 +1633,6 @@ function enterShopMode(itemIds) {
 function exitShopMode() {
   hide("shopMode");
   releaseWakeLock();
-  // Re-show FAB if the queue still has items (renderSummary will sync it).
   renderSummary();
 }
 $("shopExitBtn").addEventListener("click", async () => {
@@ -1953,16 +1935,10 @@ let undoTimer = null;
 function toastBottom() {
   const shopMode = $("shopMode");
   const shopOpen = shopMode && !shopMode.classList.contains("hidden");
-  const fab = $("buildTripFab");
-  const fabVisible = fab && !fab.classList.contains("hidden");
   if (shopOpen) {
     const footer = shopMode.querySelector(".shop-footer");
     const footerH = footer?.getBoundingClientRect().height || 64;
     return `${footerH + 16}px`;
-  } else if (fabVisible) {
-    const fabRect = fab.getBoundingClientRect();
-    const lift = window.innerHeight - fabRect.top + 12;
-    return `${lift}px`;
   }
   return "calc(env(safe-area-inset-bottom, 0px) + 24px)";
 }
@@ -2110,12 +2086,13 @@ function renderTodayList(rootId, items, emptyMsg) {
       .filter(Boolean)
       .join(" · ");
     row.innerHTML = `
-      <span class="name">${escapeHtml(i.name)}</span>
-      ${tags ? `<span class="meta-tag">${tags}</span>` : ""}
-      ${i.cost ? `<span class="cost-tag">$${i.cost.toFixed(2)}</span>` : ""}
+      <span class="row-main">
+        <span class="name">${escapeHtml(i.name)}</span>
+        ${tags || i.cost ? `<span class="row-sub">${tags ? `<span class="meta-tag">${tags}</span>` : ""}${i.cost ? `<span class="cost-tag">$${i.cost.toFixed(2)}</span>` : ""}</span>` : ""}
+      </span>
       <span class="row-actions">
-        <button data-act="bought" class="bought-now" title="Mark bought">✓ Bought</button>
-        <button data-act="queue" class="${i.inTrip ? "queued" : ""}" title="${i.inTrip ? "Remove from trip" : "Add to trip"}">${i.inTrip ? "✕ Trip" : "+ Trip"}</button>
+        <button data-act="bought" class="bought-now" title="Mark bought">✓</button>
+        <button data-act="queue" class="${i.inTrip ? "queued" : ""}" title="${i.inTrip ? "Remove from trip" : "Add to trip"}">${i.inTrip ? "✕" : "+"}</button>
       </span>
     `;
     row.querySelector('[data-act="bought"]').addEventListener("click", (e) => {
@@ -2169,8 +2146,8 @@ $("generateFromQueueBtn")
     generateTrip({ onlyQueued: true, skipPreview: true });
   });
 
-// Floating action button: same direct-to-shop behavior.
-$("buildTripFab")?.addEventListener("click", () => {
+// Header tile "in next trip" — tap to go straight to Shop Mode from anywhere.
+$("tripQueueTile")?.addEventListener("click", () => {
   const queue = state.items.filter((i) => i.status === "active" && i.inTrip);
   if (!queue.length) {
     flash("Trip queue is empty. Use + Trip on any item.");
