@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#1e293b" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="HouseCart" />
+<title>HouseCart — Smart Household Shopping</title>
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="icon" type="image/svg+xml" href="icon.svg" />
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png" />
+<link rel="apple-touch-icon" href="apple-touch-icon.png" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <h1>🏠 HouseCart</h1>
+    <div class="summary">
+      <div><span id="monthlyRecurring">$0</span><small>recurring / mo</small></div>
+      <div><span id="activeCount">0</span><small>active items</small></div>
+      <div><span id="dueSoonCount">0</span><small>due ≤ 7d</small></div>
+      <div><span id="tripQueueCount">0</span><small>in next trip</small></div>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-tab="today">✨ Today</button>
+    <button class="tab" data-tab="list">🛒 All Items <span class="tab-count" id="tabCount-list"></span></button>
+    <button class="tab" data-tab="recurring">🔁 Recurring <span class="tab-count" id="tabCount-recurring"></span></button>
+    <button class="tab" data-tab="goals">🎯 Goals <span class="tab-count" id="tabCount-goals"></span></button>
+    <button class="tab" data-tab="suggestions">💡 Suggestions <span class="tab-count" id="tabCount-suggestions"></span></button>
+    <button class="tab" data-tab="history">📜 History <span class="tab-count" id="tabCount-history"></span></button>
+    <button class="tab" data-tab="settings">⚙️</button>
+    <button class="tab help-tab" id="helpBtn" title="Keyboard shortcuts (?)">?</button>
+  </nav>
+
+  <!-- Quick add bar (always visible) -->
+  <section class="quick-add">
+    <input
+      id="quickAddInput"
+      type="text"
+      placeholder='Try: "garden hose washer $5 at Home Depot maintenance" or "Netflix $15 monthly recurring"'
+      autocomplete="off"
+    />
+    <button id="quickAddBtn" title="Add (N)">+ Add</button>
+    <button id="voiceBtn" title="Voice add">🎤</button>
+    <button id="receiptBtn" title="Paste a receipt to bulk-add">📷 Receipt</button>
+    <input
+      id="globalSearch"
+      class="global-search"
+      type="search"
+      placeholder="🔍 Search all items… (/)"
+      autocomplete="off"
+    />
+  </section>
+
+  <!-- Today (default home) -->
+  <section id="tab-today" class="tab-panel active">
+    <div id="backupBanner" class="banner hidden">
+      <span>💾 Last backup was <strong class="days">a while ago</strong>. Save a copy somewhere safe.</span>
+      <span class="banner-actions">
+        <button id="bannerBackupBtn" class="primary-sm">Back up now</button>
+        <button id="bannerDismissBtn" class="link-btn">Dismiss</button>
+      </span>
+    </div>
+    <div class="today-grid">
+      <div class="today-card urgent-card">
+        <h3>🔥 Act today <small id="actCount"></small></h3>
+        <div id="actToday"></div>
+      </div>
+      <div class="today-card week-card">
+        <h3>📅 This week <small id="weekCount"></small></h3>
+        <div id="thisWeek"></div>
+      </div>
+      <div class="today-card trip-card">
+        <h3>🛍️ Next trip queue <small id="queueCount"></small></h3>
+        <div id="tripQueue"></div>
+        <div class="trip-card-actions">
+          <button id="generateFromQueueBtn" class="primary" title="Preview your trip — then jump into Shop Mode from there">🛍️ Start trip</button>
+          <button id="clearQueueBtn" class="ghost" title="Remove all items from the trip queue">× Clear</button>
+        </div>
+      </div>
+      <div class="today-card tips-card">
+        <h3>💡 Smart tips <small id="tipsCount"></small></h3>
+        <div id="todayTips"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Shopping list -->
+  <section id="tab-list" class="tab-panel">
+    <div class="filters">
+      <select id="filterCategory">
+        <option value="">All categories</option>
+      </select>
+      <select id="filterPriority">
+        <option value="">All priorities</option>
+        <option value="urgent">Urgent</option>
+        <option value="normal">Normal</option>
+        <option value="someday">Someday</option>
+      </select>
+      <button id="generateListBtn" class="primary" title="Build a trip from urgent + upcoming items">🛍️ Start trip</button>
+    </div>
+    <div id="itemList" class="card-grid"></div>
+  </section>
+
+  <!-- Recurring -->
+  <section id="tab-recurring" class="tab-panel">
+    <p class="hint">Bills, subscriptions, and stuff you re-buy on a schedule. Items here auto-resurface near their due date.</p>
+    <label class="toggle">
+      <input type="checkbox" id="showAutopay" />
+      Show auto-paid items
+    </label>
+    <div id="recurringList" class="card-grid"></div>
+  </section>
+
+  <!-- Goals -->
+  <section id="tab-goals" class="tab-panel">
+    <p class="hint">Bigger / longer-term purchases. Track savings progress.</p>
+    <div id="goalsList" class="card-grid"></div>
+  </section>
+
+  <!-- Suggestions -->
+  <section id="tab-suggestions" class="tab-panel">
+    <p class="hint">Smart reminders based on your history + related-item logic.</p>
+    <div id="suggestionsList"></div>
+  </section>
+
+  <!-- History -->
+  <section id="tab-history" class="tab-panel">
+    <div id="historyList"></div>
+  </section>
+
+  <!-- Settings -->
+  <section id="tab-settings" class="tab-panel">
+    <h3>Data</h3>
+    <button id="exportBtn">⬇️ Export JSON</button>
+    <label class="file-btn">
+      ⬆️ Import JSON
+      <input id="importInput" type="file" accept="application/json" hidden />
+    </label>
+    <button id="seedBtn">🌱 Load full sample data</button>
+    <button id="prefillAutopayBtn">💳 Add common auto-paid bills</button>
+    <button id="dedupeBtn">🧹 Remove duplicate items</button>
+    <button id="clearBtn" class="danger">🗑️ Clear everything</button>
+
+    <h3>Backup</h3>
+    <p class="hint">
+      Save a JSON file of your data. On phone, the share sheet opens so you can
+      stash it in iCloud Drive / Files / Dropbox. On desktop it downloads.
+      Restore later with Import JSON above.
+    </p>
+    <div class="settings-row">
+      <button id="backupNowBtn" class="primary">💾 Backup now</button>
+      <label class="row-label">
+        Remind me every:
+        <select id="backupInterval">
+          <option value="3">3 days</option>
+          <option value="7" selected>7 days</option>
+          <option value="14">14 days</option>
+          <option value="30">30 days</option>
+          <option value="0">Never</option>
+        </select>
+      </label>
+    </div>
+    <p class="hint" id="lastBackupHint">Last backup: never</p>
+
+    <h3>Cloud sync (GitHub Gist)</h3>
+    <p class="hint">
+      Free cross-device sync via a <strong>secret</strong> GitHub Gist. Every save
+      auto-pushes; on launch the latest version is pulled. Each push is a git
+      commit — you get free version history.
+    </p>
+    <details class="hint">
+      <summary>How to set this up (one time, ~2 min)</summary>
+      <ol>
+        <li>Go to <a href="https://github.com/settings/tokens?type=beta" target="_blank" rel="noopener">github.com/settings/tokens</a> and create a <strong>fine-grained</strong> Personal Access Token.</li>
+        <li>Set Repository access: <strong>Public Repositories (read-only)</strong> — we don't touch repos.</li>
+        <li>Under Account permissions, set <strong>Gists: Read and write</strong>. (Classic tokens: pick only the <code>gist</code> scope.)</li>
+        <li>Pick a short expiration (e.g. 90 days) and copy the token.</li>
+        <li>Paste it below. Leave Gist ID blank — the first save creates a private Gist automatically.</li>
+        <li>On your other devices, paste the <strong>same token</strong> and the <strong>same Gist ID</strong> (visible after the first sync).</li>
+      </ol>
+    </details>
+    <p class="hint warn-text">
+      ⚠️ Token is stored <strong>unencrypted</strong> in this browser's localStorage.
+      Anyone with this browser profile can read it. Use a token scoped only to Gists and rotate it periodically.
+    </p>
+    <label class="row-label">
+      GitHub token:
+      <input id="gistToken" type="password" placeholder="github_pat_… or ghp_…" autocomplete="off" />
+    </label>
+    <label class="row-label">
+      Gist ID (blank = create new on first save):
+      <input id="gistId" type="text" placeholder="e.g. 1a2b3c4d…" autocomplete="off" />
+    </label>
+    <div class="settings-row">
+      <button id="gistSaveBtn" class="primary">Save & connect</button>
+      <button id="gistSyncBtn">↑ Push now</button>
+      <button id="gistPullBtn">↓ Pull now</button>
+      <button id="gistDisableBtn" class="danger">Disconnect</button>
+    </div>
+    <p class="hint" id="gistStatus">Not connected.</p>
+
+    <h3>LLM upgrade (optional)</h3>
+    <p class="hint">
+      Paste an OpenAI-compatible API key to upgrade quick-add and receipt parsing to use an LLM.
+      Key is stored only in your browser's localStorage.
+    </p>
+    <p class="hint warn-text">
+      ⚠️ Stored <strong>unencrypted</strong> in this browser's localStorage. Anyone with access to this browser profile (or a malicious browser extension) can read it. Use a key with the lowest scope possible and rotate often.
+    </p>
+    <input id="apiKey" type="password" placeholder="sk-…" />
+    <button id="saveKeyBtn">Save key</button>
+  </section>
+
+  <!-- Add/Edit modal -->
+  <div id="modal" class="modal hidden">
+    <div class="modal-content">
+      <h2 id="modalTitle">Add item</h2>
+      <form id="itemForm">
+        <input type="hidden" id="f-id" />
+        <label>Name <input type="text" id="f-name" required /></label>
+        <div class="row">
+          <label>Category
+            <select id="f-category">
+              <option value="grocery">Grocery</option>
+              <option value="household">Household</option>
+              <option value="maintenance">Maintenance</option>
+              <option value="recurring">Recurring / Bill</option>
+              <option value="project">Project</option>
+              <option value="goal">Long-term goal</option>
+              <option value="surprise">Surprise / Repair</option>
+              <option value="other">Other</option>
+            </select>
+          </label>
+          <label>Priority
+            <select id="f-priority">
+              <option value="normal">Normal</option>
+              <option value="urgent">Urgent</option>
+              <option value="someday">Someday</option>
+            </select>
+          </label>
+        </div>
+        <div class="row">
+          <label>Est. cost $ <input type="number" id="f-cost" step="0.01" min="0" /></label>
+          <label>Store <input type="text" id="f-store" placeholder="Home Depot, Amazon…" /></label>
+        </div>
+        <div class="row">
+          <label>Next due
+            <input type="date" id="f-due" />
+            <div class="date-presets">
+              <button type="button" data-days="0">Today</button>
+              <button type="button" data-days="7">+1 week</button>
+              <button type="button" data-days="30">+1 month</button>
+              <button type="button" data-days="">Clear</button>
+            </div>
+          </label>
+          <label>Recurs every
+            <select id="f-recur">
+              <option value="">— never —</option>
+              <option value="weekly">Week</option>
+              <option value="biweekly">2 weeks</option>
+              <option value="monthly">Month</option>
+              <option value="quarterly">Quarter</option>
+              <option value="yearly">Year</option>
+            </select>
+          </label>
+        </div>
+        <label>Related items (comma separated)
+          <input type="text" id="f-related" placeholder="rollers, painter's tape" />
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" id="f-autopay" />
+          💳 Auto-paid / auto-charged (hide from shopping list)
+        </label>
+        <label>Notes <textarea id="f-notes" rows="2"></textarea></label>
+        <div class="modal-actions">
+          <button type="button" id="deleteBtn" class="danger hidden">Delete</button>
+          <button type="button" id="cancelBtn">Cancel</button>
+          <button type="submit">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Receipt paste modal -->
+  <div id="receiptModal" class="modal hidden">
+    <div class="modal-content">
+      <h2>Paste receipt text</h2>
+      <p class="hint">Copy the text from a digital receipt, or type items one per line like <code>2x AA batteries 8.99</code>. We'll auto-extract names + prices.</p>
+      <textarea id="receiptText" rows="10" placeholder="Home Depot
+Garden hose washer pack   4.97
+2x Drain snake            12.50
+Tax                       1.20
+Total                    18.67"></textarea>
+        <div class="modal-actions">
+          <button type="button" id="receiptCancelBtn">Cancel</button>
+          <button type="button" id="receiptParseBtn">Parse + add</button>
+        </div>
+    </div>
+  </div>
+
+  <!-- Generated trip modal -->
+  <div id="tripModal" class="modal hidden">
+    <div class="modal-content">
+      <h2>📋 Shopping Trip</h2>
+      <p class="hint" id="tripSummary"></p>
+      <div id="tripGroups"></div>
+      <div class="modal-actions">
+        <button type="button" id="tripCloseBtn">Close</button>
+        <button type="button" id="tripCopyBtn">📋 Copy</button>
+        <button type="button" id="tripMarkBoughtBtn">✓ Mark checked as bought</button>
+        <button type="button" id="tripShopModeBtn" class="primary">🛍️ Shop Mode</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Help / keyboard shortcuts modal -->
+  <div id="helpModal" class="modal hidden">
+    <div class="modal-content">
+      <h2>Keyboard shortcuts</h2>
+      <table class="help-table">
+        <tr><td><kbd>N</kbd></td><td>Focus quick-add</td></tr>
+        <tr><td><kbd>/</kbd> &nbsp; <kbd>F</kbd></td><td>Focus global search</td></tr>
+        <tr><td><kbd>G</kbd></td><td>Generate trip from urgent + upcoming items</td></tr>
+        <tr><td><kbd>V</kbd></td><td>Start voice add</td></tr>
+        <tr><td><kbd>1</kbd>–<kbd>7</kbd></td><td>Switch tabs</td></tr>
+        <tr><td><kbd>Esc</kbd></td><td>Close modal / blur input</td></tr>
+        <tr><td><kbd>?</kbd></td><td>This help</td></tr>
+      </table>
+      <p class="hint" style="margin-top:1rem">Tip: type a price as <code>$5</code> or <code>5.99</code> — bare integers like <code>2 gallons of milk</code> are <strong>not</strong> treated as prices.</p>
+      <p class="hint warn-text" style="margin-top:0.75rem">
+        📱 <strong>On your phone?</strong> Tap Share → <strong>Add to Home Screen</strong>.
+        Browser-tab data can be evicted by the OS after ~7 days of inactivity;
+        installed-app data is much more durable. Use Settings → Export to back up.
+      </p>
+      <div class="modal-actions">
+        <button type="button" id="helpCloseBtn" class="primary">Got it</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Shop Mode (full-screen, in-store) -->
+  <div id="shopMode" class="shop-mode hidden">
+    <header class="shop-header">
+      <button id="shopExitBtn" class="shop-icon-btn" title="Exit">✕</button>
+      <div class="shop-title">
+        <h2 id="shopTitle">Shopping</h2>
+        <p id="shopProgress">0 of 0 items</p>
+      </div>
+      <button id="shopShareBtn" class="shop-icon-btn" title="Share / copy">🔗</button>
+    </header>
+    <div class="shop-progress-bar"><div id="shopProgressFill"></div></div>
+    <div id="shopBody" class="shop-body"></div>
+    <footer class="shop-footer">
+      <button id="shopHideCheckedBtn">👁️ Hide checked</button>
+      <button id="shopFinishBtn" class="primary">✓ Finish trip</button>
+    </footer>
+  </div>
+
+  <!-- Floating action button: appears on any tab when items are queued -->
+  <button id="buildTripFab" class="fab hidden" title="Start trip from queue">
+    🛍️ Start trip <span class="fab-count">0</span>
+  </button>
+
+  <script src="app.js"></script>
+</body>
+</html>

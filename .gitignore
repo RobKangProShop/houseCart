@@ -1,0 +1,9 @@
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Local backups (created by the Backup feature)
+housecart-backup-*.json
+housecart-*.json
