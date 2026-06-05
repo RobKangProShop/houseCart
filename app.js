@@ -12,6 +12,14 @@
    }
    ============================================================ */
 
+// ── DOM helpers ────────────────────────────────────────────────────────────
+// Short aliases used throughout to reduce noise. `$` is getElementById;
+// `show`/`hide` toggle the "hidden" class on an element or an id string.
+const $ = (id) => $(id);
+const show = (el) => (typeof el === "string" ? $(el) : el)?.classList.remove("hidden");
+const hide = (el) => (typeof el === "string" ? $(el) : el)?.classList.add("hidden");
+// ───────────────────────────────────────────────────────────────────────────
+
 const STORAGE_KEY = "housecart.v1";
 // IndexedDB is our durable primary store. localStorage is kept as a synchronous
 // mirror so initial paint doesn't have to await an async DB open, and so the
@@ -168,7 +176,7 @@ function switchTab(tabName) {
     .forEach((x) => x.classList.remove("active"));
 
   // Activate the target panel
-  const panel = document.getElementById("tab-" + tabName);
+  const panel = $("tab-" + tabName);
   if (panel) panel.classList.add("active");
 
   // Update tab bar active indicator
@@ -177,7 +185,7 @@ function switchTab(tabName) {
     primaryTab.classList.add("active");
   }
   // Highlight the More button when a secondary tab is shown
-  const moreBtn = document.getElementById("moreTabBtn");
+  const moreBtn = $("moreTabBtn");
   if (moreBtn) moreBtn.classList.toggle("secondary-active", isSecondary);
   // Highlight the matching more-nav item
   const moreItem = document.querySelector(
@@ -189,10 +197,10 @@ function switchTab(tabName) {
 }
 
 function openMoreSheet() {
-  document.getElementById("moreSheet")?.classList.remove("hidden");
+  show("moreSheet");
 }
 function closeMoreSheet() {
-  document.getElementById("moreSheet")?.classList.add("hidden");
+  hide("moreSheet");
 }
 
 // Primary tab bar clicks
@@ -201,7 +209,7 @@ document.querySelectorAll(".tab[data-tab]").forEach((t) => {
 });
 
 // More button opens the sheet
-document.getElementById("moreTabBtn")?.addEventListener("click", openMoreSheet);
+$("moreTabBtn")?.addEventListener("click", openMoreSheet);
 
 // More sheet navigation items
 document.querySelectorAll(".more-nav-item[data-tab]").forEach((t) => {
@@ -212,13 +220,12 @@ document.querySelectorAll(".more-nav-item[data-tab]").forEach((t) => {
 document
   .querySelector(".more-sheet-backdrop")
   ?.addEventListener("click", closeMoreSheet);
-document
-  .getElementById("moreSheetCloseBtn")
+$("moreSheetCloseBtn")
   ?.addEventListener("click", closeMoreSheet);
 
 // Keyboard shortcut: Escape closes the sheet
 // (handled in the global keydown below, but also wire it here defensively)
-document.getElementById("moreSheet")?.addEventListener("keydown", (e) => {
+$("moreSheet")?.addEventListener("keydown", (e) => {
   if (e.key === "Escape") closeMoreSheet();
 });
 
@@ -362,12 +369,12 @@ function parseNaturalLanguage(text) {
   return item;
 }
 
-document.getElementById("quickAddBtn").addEventListener("click", quickAdd);
-document.getElementById("quickAddInput").addEventListener("keydown", (e) => {
+$("quickAddBtn").addEventListener("click", quickAdd);
+$("quickAddInput").addEventListener("keydown", (e) => {
   if (e.key === "Enter") quickAdd();
 });
 function quickAdd() {
-  const input = document.getElementById("quickAddInput");
+  const input = $("quickAddInput");
   const text = input.value.trim();
   if (!text) return;
   const parsed = parseNaturalLanguage(text);
@@ -391,17 +398,17 @@ function quickAdd() {
 }
 
 /* ---------------- Receipt parser ---------------- */
-document.getElementById("receiptBtn").addEventListener("click", () => {
-  document.getElementById("receiptModal").classList.remove("hidden");
+$("receiptBtn").addEventListener("click", () => {
+  show("receiptModal");
 });
-document.getElementById("receiptCancelBtn").addEventListener("click", () => {
-  document.getElementById("receiptModal").classList.add("hidden");
+$("receiptCancelBtn").addEventListener("click", () => {
+  hide("receiptModal");
 });
-document.getElementById("receiptParseBtn").addEventListener("click", () => {
-  const text = document.getElementById("receiptText").value;
+$("receiptParseBtn").addEventListener("click", () => {
+  const text = $("receiptText").value;
   const items = parseReceipt(text);
   if (!items.length) {
-    alert("Couldn't find any line items.");
+    appAlert("Couldn't find any line items.");
     return;
   }
   const addedIds = [];
@@ -415,8 +422,8 @@ document.getElementById("receiptParseBtn").addEventListener("click", () => {
       history: [{ date: todayISO(), cost: it.cost, store: it.store }],
     });
   });
-  document.getElementById("receiptText").value = "";
-  document.getElementById("receiptModal").classList.add("hidden");
+  $("receiptText").value = "";
+  hide("receiptModal");
   save();
   // Undo removes every item we just inserted (safer than retrying parse).
   showUndoToast(
@@ -484,66 +491,64 @@ function guessCategory(name) {
 }
 
 /* ---------------- Modal (add/edit) ---------------- */
-const modal = document.getElementById("modal");
-const form = document.getElementById("itemForm");
+const modal = $("modal");
+const form = $("itemForm");
 
 function openModal(item) {
-  document.getElementById("modalTitle").textContent = item
+  $("modalTitle").textContent = item
     ? "Edit item"
     : "Add item";
-  document.getElementById("f-id").value = item?.id || "";
-  document.getElementById("f-name").value = item?.name || "";
-  document.getElementById("f-category").value = item?.category || "household";
-  document.getElementById("f-priority").value = item?.priority || "normal";
-  document.getElementById("f-cost").value = item?.cost ?? "";
-  document.getElementById("f-store").value = item?.store || "";
-  document.getElementById("f-due").value = item?.due || "";
-  document.getElementById("f-recur").value = item?.recur || "";
-  document.getElementById("f-related").value = (item?.related || []).join(", ");
-  document.getElementById("f-autopay").checked = !!item?.autopay;
-  document.getElementById("f-notes").value = item?.notes || "";
-  document.getElementById("deleteBtn").classList.toggle("hidden", !item);
-  modal.classList.remove("hidden");
+  $("f-id").value = item?.id || "";
+  $("f-name").value = item?.name || "";
+  $("f-category").value = item?.category || "household";
+  $("f-priority").value = item?.priority || "normal";
+  $("f-cost").value = item?.cost ?? "";
+  $("f-store").value = item?.store || "";
+  $("f-due").value = item?.due || "";
+  $("f-recur").value = item?.recur || "";
+  $("f-related").value = (item?.related || []).join(", ");
+  $("f-autopay").checked = !!item?.autopay;
+  $("f-notes").value = item?.notes || "";
+  $("deleteBtn").classList.toggle("hidden", !item);
+  show(modal);
 }
-document
-  .getElementById("cancelBtn")
-  .addEventListener("click", () => modal.classList.add("hidden"));
+$("cancelBtn")
+  .addEventListener("click", () => hide(modal));
 
 // Date quick-presets on the add/edit form. Tap a chip to fill the date input.
 document.querySelectorAll(".date-presets button").forEach((btn) => {
   btn.addEventListener("click", () => {
-    const dueInput = document.getElementById("f-due");
+    const dueInput = $("f-due");
     const days = btn.dataset.days;
     dueInput.value =
       days === "" ? "" : addDaysISO(todayISO(), parseInt(days, 10));
   });
 });
-document.getElementById("deleteBtn").addEventListener("click", () => {
-  const id = document.getElementById("f-id").value;
-  if (id && confirm("Delete this item?")) {
+$("deleteBtn").addEventListener("click", async () => {
+  const id = $("f-id").value;
+  if (id && await appConfirm("Delete this item?")) {
     state.items = state.items.filter((i) => i.id !== id);
-    modal.classList.add("hidden");
+    hide(modal);
     save();
   }
 });
 form.addEventListener("submit", (e) => {
   e.preventDefault();
-  const id = document.getElementById("f-id").value;
+  const id = $("f-id").value;
   const data = {
-    name: document.getElementById("f-name").value.trim(),
-    category: document.getElementById("f-category").value,
-    priority: document.getElementById("f-priority").value,
-    cost: parseFloat(document.getElementById("f-cost").value) || null,
-    store: document.getElementById("f-store").value.trim(),
-    due: document.getElementById("f-due").value || "",
-    recur: document.getElementById("f-recur").value,
-    related: document
-      .getElementById("f-related")
+    name: $("f-name").value.trim(),
+    category: $("f-category").value,
+    priority: $("f-priority").value,
+    cost: parseFloat($("f-cost").value) || null,
+    store: $("f-store").value.trim(),
+    due: $("f-due").value || "",
+    recur: $("f-recur").value,
+    related: $("f-related")
       .value.split(",")
       .map((s) => s.trim())
       .filter(Boolean),
-    autopay: document.getElementById("f-autopay").checked,
-    notes: document.getElementById("f-notes").value.trim(),
+    autopay: $("f-autopay").checked,
+    notes: $("f-notes").value.trim(),
   };
   if (id) {
     const existing = state.items.find((i) => i.id === id);
@@ -551,7 +556,7 @@ form.addEventListener("submit", (e) => {
   } else {
     state.items.push({ ...data, id: uid(), status: "active", history: [] });
   }
-  modal.classList.add("hidden");
+  hide(modal);
   save();
 });
 
@@ -666,21 +671,21 @@ function renderSummary() {
     (i) => daysUntil(i.due) !== null && daysUntil(i.due) <= 7,
   ).length;
   const inTrip = active.filter((i) => i.inTrip && !i.autopay).length;
-  document.getElementById("monthlyRecurring").textContent =
+  $("monthlyRecurring").textContent =
     "$" + monthly.toFixed(0);
-  document.getElementById("activeCount").textContent = needsAction.length;
-  document.getElementById("dueSoonCount").textContent = dueSoon;
-  document.getElementById("tripQueueCount").textContent = inTrip;
+  $("activeCount").textContent = needsAction.length;
+  $("dueSoonCount").textContent = dueSoon;
+  $("tripQueueCount").textContent = inTrip;
 
   // Floating "Build trip" button: visible from any tab whenever the queue has
   // items, so users can always get to the trip modal in one click.
-  const fab = document.getElementById("buildTripFab");
+  const fab = $("buildTripFab");
   if (fab) {
     if (inTrip > 0) {
-      fab.classList.remove("hidden");
+      show(fab);
       fab.querySelector(".fab-count").textContent = inTrip;
     } else {
-      fab.classList.add("hidden");
+      hide(fab);
     }
   }
 
@@ -698,7 +703,7 @@ function renderSummary() {
     history: state.items.reduce((n, i) => n + (i.history?.length || 0), 0),
   };
   for (const [tab, n] of Object.entries(counts)) {
-    const el = document.getElementById(`tabCount-${tab}`);
+    const el = $(`tabCount-${tab}`);
     if (!el) continue;
     el.textContent = n ? String(n) : "";
     el.classList.toggle("hidden", !n);
@@ -706,7 +711,7 @@ function renderSummary() {
 }
 
 function populateCategoryFilter() {
-  const sel = document.getElementById("filterCategory");
+  const sel = $("filterCategory");
   const current = sel.value;
   const cats = [...new Set(state.items.map((i) => i.category))].sort();
   sel.innerHTML =
@@ -779,12 +784,12 @@ function makeCard(item) {
 }
 
 function renderList() {
-  const root = document.getElementById("itemList");
+  const root = $("itemList");
   root.innerHTML = "";
-  const cat = document.getElementById("filterCategory").value;
-  const prio = document.getElementById("filterPriority").value;
+  const cat = $("filterCategory").value;
+  const prio = $("filterPriority").value;
   // Search reads from the always-visible global search input.
-  const q = (document.getElementById("globalSearch")?.value || "")
+  const q = ($("globalSearch")?.value || "")
     .trim()
     .toLowerCase();
   const items = state.items
@@ -814,9 +819,9 @@ function renderList() {
 }
 
 function renderRecurring() {
-  const root = document.getElementById("recurringList");
+  const root = $("recurringList");
   root.innerHTML = "";
-  const showAutopay = document.getElementById("showAutopay")?.checked;
+  const showAutopay = $("showAutopay")?.checked;
   const items = state.items
     .filter((i) => i.recur)
     .filter((i) => showAutopay || !i.autopay)
@@ -833,7 +838,7 @@ function renderRecurring() {
 }
 
 function renderGoals() {
-  const root = document.getElementById("goalsList");
+  const root = $("goalsList");
   root.innerHTML = "";
   const items = state.items.filter(
     (i) => i.category === "goal" && i.status !== "bought",
@@ -848,7 +853,7 @@ function renderGoals() {
 
 /* ---------------- Smart suggestions ---------------- */
 function renderSuggestions() {
-  const root = document.getElementById("suggestionsList");
+  const root = $("suggestionsList");
   const sugg = computeSuggestions();
   if (!sugg.length) {
     root.innerHTML =
@@ -981,7 +986,7 @@ function computeSuggestions() {
 
 /* ---------------- History ---------------- */
 function renderHistory() {
-  const root = document.getElementById("historyList");
+  const root = $("historyList");
   const rows = [];
   for (const i of state.items) {
     for (const h of i.history || []) {
@@ -1022,22 +1027,21 @@ function renderHistory() {
 
 /* ---------------- Filters wiring ---------------- */
 ["filterCategory", "filterPriority"].forEach((id) =>
-  document.getElementById(id).addEventListener("input", renderList),
+  $(id).addEventListener("input", renderList),
 );
-document
-  .getElementById("showAutopay")
+$("showAutopay")
   .addEventListener("change", renderRecurring);
 
 // Global search (header / quick-add bar): always-visible search that jumps
 // to the All Items tab and re-renders. Filter logic reads #globalSearch directly.
-document.getElementById("globalSearch")?.addEventListener("input", () => {
+$("globalSearch")?.addEventListener("input", () => {
   const listTab = document.querySelector('.tab[data-tab="list"]');
   if (listTab && !listTab.classList.contains("active")) switchTab("list");
   renderList();
 });
 
 /* ---------------- Settings ---------------- */
-document.getElementById("exportBtn").addEventListener("click", () => {
+$("exportBtn").addEventListener("click", () => {
   const blob = new Blob([JSON.stringify(state, null, 2)], {
     type: "application/json",
   });
@@ -1046,7 +1050,7 @@ document.getElementById("exportBtn").addEventListener("click", () => {
   a.download = `housecart-${todayISO()}.json`;
   a.click();
 });
-document.getElementById("importInput").addEventListener("change", async (e) => {
+$("importInput").addEventListener("change", async (e) => {
   const f = e.target.files[0];
   if (!f) return;
   try {
@@ -1056,34 +1060,30 @@ document.getElementById("importInput").addEventListener("change", async (e) => {
     save();
     flash("Imported.");
   } catch (err) {
-    alert("Import failed: " + err.message);
+    appAlert("Import failed: " + err.message);
   }
 });
-document.getElementById("clearBtn").addEventListener("click", () => {
-  if (confirm("Delete ALL data? This cannot be undone.")) {
+$("clearBtn").addEventListener("click", async () => {
+  if (await appConfirm("Delete ALL data? This cannot be undone.")) {
     state = { items: [] };
     save();
   }
 });
 
 /* ---------------- Backup (Layer 2) ---------------- */
-document.getElementById("backupNowBtn")?.addEventListener("click", () => {
-  makeBackup().catch((e) => alert("Backup failed: " + e.message));
+$("backupNowBtn")?.addEventListener("click", () => {
+  makeBackup().catch((e) => appAlert("Backup failed: " + e.message));
 });
-document.getElementById("backupInterval")?.addEventListener("change", (e) => {
+$("backupInterval")?.addEventListener("change", (e) => {
   setBackupIntervalDays(parseInt(e.target.value, 10));
 });
-document.getElementById("bannerBackupBtn")?.addEventListener("click", () => {
-  makeBackup().catch((e) => alert("Backup failed: " + e.message));
+$("bannerBackupBtn")?.addEventListener("click", () => {
+  makeBackup().catch((e) => appAlert("Backup failed: " + e.message));
 });
-document.getElementById("bannerDismissBtn")?.addEventListener("click", () => {
+$("bannerDismissBtn")?.addEventListener("click", async () => {
   // "Dismiss" = pretend a backup just happened so we wait another full interval
   // before nagging again. The data is NOT actually backed up — make this clear.
-  if (
-    confirm(
-      "Dismiss without backing up?\nThe reminder will return after the next interval.",
-    )
-  ) {
+  if (await appConfirm("Dismiss without backing up?\nThe reminder will return after the next interval.")) {
     state.lastBackup = new Date().toISOString();
     persistState();
     refreshBackupHint();
@@ -1093,11 +1093,11 @@ document.getElementById("bannerDismissBtn")?.addEventListener("click", () => {
 /* ---------------- Cloud sync — GitHub Gist (Layer 3) ---------------- */
 function loadCloudSettingsUI() {
   const { token, gistId } = getGistConfig();
-  const tokenEl = document.getElementById("gistToken");
-  const idEl = document.getElementById("gistId");
+  const tokenEl = $("gistToken");
+  const idEl = $("gistId");
   if (tokenEl) tokenEl.value = token;
   if (idEl) idEl.value = gistId;
-  const intervalEl = document.getElementById("backupInterval");
+  const intervalEl = $("backupInterval");
   if (intervalEl) intervalEl.value = String(getBackupIntervalDays());
   updateSyncStatus();
   refreshBackupHint();
@@ -1107,19 +1107,19 @@ function loadCloudSettingsUI() {
 // are still in the temporal dead zone at this point. We invoke it from the
 // startup IIFE at the bottom instead.
 
-document.getElementById("gistSaveBtn")?.addEventListener("click", () => {
-  const token = document.getElementById("gistToken").value.trim();
-  const gistId = document.getElementById("gistId").value.trim();
+$("gistSaveBtn")?.addEventListener("click", () => {
+  const token = $("gistToken").value.trim();
+  const gistId = $("gistId").value.trim();
   setGistConfig({ token, gistId });
   flash("Cloud sync settings saved.");
   // If they just configured a token + gist, pull immediately to fetch any
   // existing remote state.
   if (token) cloudPullOnLaunch();
 });
-document.getElementById("gistSyncBtn")?.addEventListener("click", async () => {
+$("gistSyncBtn")?.addEventListener("click", async () => {
   // Auto-save inputs so user doesn't have to remember "Save & connect" first.
-  const tokenInput = document.getElementById("gistToken")?.value.trim() || "";
-  const idInput = document.getElementById("gistId")?.value.trim() || "";
+  const tokenInput = $("gistToken")?.value.trim() || "";
+  const idInput = $("gistId")?.value.trim() || "";
   if (tokenInput || idInput)
     setGistConfig({ token: tokenInput, gistId: idInput });
   const { token } = getGistConfig();
@@ -1129,21 +1129,21 @@ document.getElementById("gistSyncBtn")?.addEventListener("click", async () => {
     await gistPush();
     flash("☁️ Pushed to cloud.");
     // Refresh the Gist ID input in case gistPush() just created one.
-    const idEl = document.getElementById("gistId");
+    const idEl = $("gistId");
     if (idEl) idEl.value = getGistConfig().gistId || "";
   } catch (e) {
     appAlert("Push failed: " + e.message);
     updateSyncStatus();
   }
 });
-document.getElementById("gistPullBtn")?.addEventListener("click", async () => {
+$("gistPullBtn")?.addEventListener("click", async () => {
   // Auto-save inputs so user doesn't have to remember "Save & connect" first.
-  const tokenInput = document.getElementById("gistToken")?.value.trim() || "";
-  const idInput = document.getElementById("gistId")?.value.trim() || "";
+  const tokenInput = $("gistToken")?.value.trim() || "";
+  const idInput = $("gistId")?.value.trim() || "";
   if (tokenInput || idInput)
     setGistConfig({ token: tokenInput, gistId: idInput });
   // Reflect the normalized Gist ID back into the input (handles URL paste).
-  const idEl0 = document.getElementById("gistId");
+  const idEl0 = $("gistId");
   if (idEl0) idEl0.value = getGistConfig().gistId || "";
   const { token, gistId } = getGistConfig();
   if (!token || !gistId)
@@ -1171,8 +1171,7 @@ document.getElementById("gistPullBtn")?.addEventListener("click", async () => {
     updateSyncStatus();
   }
 });
-document
-  .getElementById("gistDisableBtn")
+$("gistDisableBtn")
   ?.addEventListener("click", async () => {
     const ok = await appConfirm(
       "Disconnect cloud sync? Your local data is unaffected.",
@@ -1180,8 +1179,8 @@ document
     );
     if (!ok) return;
     setGistConfig({ token: "", gistId: "" });
-    const t = document.getElementById("gistToken");
-    const i = document.getElementById("gistId");
+    const t = $("gistToken");
+    const i = $("gistId");
     if (t) t.value = "";
     if (i) i.value = "";
     flash("Cloud sync disconnected.");
@@ -1191,7 +1190,7 @@ document
 // The hash fragment is NEVER sent to servers (so no logs, no analytics, no
 // CDN, no Pages access log will ever see it). On the receiving device the
 // app reads it once, saves to localStorage, then strips it from the URL.
-document.getElementById("gistShareLinkBtn")?.addEventListener("click", () => {
+$("gistShareLinkBtn")?.addEventListener("click", () => {
   const { token, gistId } = getGistConfig();
   if (!token || !gistId) {
     return appAlert(
@@ -1384,27 +1383,24 @@ function consumeSetupLinkFromUrl() {
   }
 }
 
-document.getElementById("saveKeyBtn").addEventListener("click", () => {
-  const k = document.getElementById("apiKey").value.trim();
+$("saveKeyBtn").addEventListener("click", () => {
+  const k = $("apiKey").value.trim();
   if (k) {
     localStorage.setItem("housecart.apikey", k);
     flash("Key saved locally.");
   }
 });
-document.getElementById("apiKey").value =
+$("apiKey").value =
   localStorage.getItem("housecart.apikey") || "";
 
-document.getElementById("seedBtn").addEventListener("click", () => {
-  if (
-    state.items.length &&
-    !confirm("Append sample data to your current list?")
-  )
+$("seedBtn").addEventListener("click", async () => {
+  if (state.items.length && !await appConfirm("Append sample data to your current list?"))
     return;
   state.items.push(...sampleData());
   save();
 });
 
-document.getElementById("prefillAutopayBtn").addEventListener("click", () => {
+$("prefillAutopayBtn").addEventListener("click", () => {
   const added = prefillAutopay();
   flash(
     added
@@ -1413,7 +1409,7 @@ document.getElementById("prefillAutopayBtn").addEventListener("click", () => {
   );
 });
 
-document.getElementById("dedupeBtn").addEventListener("click", () => {
+$("dedupeBtn").addEventListener("click", () => {
   const before = state.items.length;
   const seen = new Map();
   const kept = [];
@@ -1545,7 +1541,7 @@ function generateTrip(opts = {}) {
   }
 
   // Build modal
-  const root = document.getElementById("tripGroups");
+  const root = $("tripGroups");
   root.innerHTML = "";
   currentTrip = [];
 
@@ -1553,10 +1549,10 @@ function generateTrip(opts = {}) {
     root.innerHTML = opts.onlyQueued
       ? '<p class="hint">Your trip queue is empty — tap <strong>+ Trip</strong> on items first to build a custom trip.</p>'
       : '<p class="hint">Nothing urgent right now. Add items or wait until due dates approach.</p>';
-    document.getElementById("tripSummary").textContent = "";
+    $("tripSummary").textContent = "";
   } else {
     const totalCost = deduped.reduce((s, c) => s + (c.item.cost || 0), 0);
-    document.getElementById("tripSummary").textContent =
+    $("tripSummary").textContent =
       `${deduped.length} item${deduped.length > 1 ? "s" : ""} across ${Object.keys(groups).length} store${Object.keys(groups).length > 1 ? "s" : ""} · est. $${totalCost.toFixed(2)}`;
 
     // Sort stores: real stores first (alphabetical), "Any store" last
@@ -1597,21 +1593,18 @@ function generateTrip(opts = {}) {
     }
   }
 
-  document.getElementById("tripModal").classList.remove("hidden");
+  show("tripModal");
   if (opts.skipPreview && currentTrip.length) {
-    document.getElementById("tripModal").classList.add("hidden");
+    hide("tripModal");
     enterShopMode(currentTrip.map((t) => t.itemId));
   }
 }
 
-document
-  .getElementById("generateListBtn")
-  ?.addEventListener("click", generateTrip);
-document.getElementById("tripCloseBtn").addEventListener("click", () => {
-  document.getElementById("tripModal").classList.add("hidden");
+$("tripCloseBtn").addEventListener("click", () => {
+  hide("tripModal");
 });
-document.getElementById("tripCopyBtn").addEventListener("click", () => {
-  const root = document.getElementById("tripGroups");
+$("tripCopyBtn").addEventListener("click", () => {
+  const root = $("tripGroups");
   const lines = [];
   root.querySelectorAll(".trip-group").forEach((g) => {
     lines.push(g.querySelector("h3").textContent.trim());
@@ -1633,7 +1626,7 @@ document.getElementById("tripCopyBtn").addEventListener("click", () => {
 /* ---------------- Shop Mode (full-screen in-store) ---------------- */
 let shopState = { items: [], checked: new Set(), wakeLock: null };
 
-document.getElementById("tripShopModeBtn").addEventListener("click", () => {
+$("tripShopModeBtn").addEventListener("click", () => {
   enterShopMode(currentTrip.map((t) => t.itemId));
 });
 
@@ -1646,31 +1639,28 @@ function enterShopMode(itemIds) {
     .map((id) => state.items.find((i) => i.id === id))
     .filter(Boolean);
   shopState.checked = new Set();
-  document.getElementById("tripModal").classList.add("hidden");
-  document.getElementById("shopMode").classList.remove("hidden");
-  document.getElementById("shopMode").classList.remove("hide-checked");
-  document.getElementById("buildTripFab")?.classList.add("hidden");
+  hide("tripModal");
+  show("shopMode");
+  $("shopMode").classList.remove("hide-checked");
+  hide("buildTripFab");
   renderShopMode();
   requestWakeLock();
 }
 
 function exitShopMode() {
-  document.getElementById("shopMode").classList.add("hidden");
+  hide("shopMode");
   releaseWakeLock();
   // Re-show FAB if the queue still has items (renderSummary will sync it).
   renderSummary();
 }
-document.getElementById("shopExitBtn").addEventListener("click", () => {
-  if (
-    shopState.checked.size &&
-    !confirm("Exit without marking items as bought?")
-  )
+$("shopExitBtn").addEventListener("click", async () => {
+  if (shopState.checked.size && !await appConfirm("Exit without marking items as bought?"))
     return;
   exitShopMode();
 });
 
 function renderShopMode() {
-  const body = document.getElementById("shopBody");
+  const body = $("shopBody");
   body.innerHTML = "";
 
   // Group by store
@@ -1720,14 +1710,14 @@ function renderShopMode() {
   // Progress bar + counter
   const total = shopState.items.length;
   const done = shopState.checked.size;
-  document.getElementById("shopProgress").textContent =
+  $("shopProgress").textContent =
     `${done} of ${total} item${total === 1 ? "" : "s"}`;
-  document.getElementById("shopProgressFill").style.width = total
+  $("shopProgressFill").style.width = total
     ? `${(done / total) * 100}%`
     : "0%";
 
   const total$ = shopState.items.reduce((s, i) => s + (i.cost || 0), 0);
-  document.getElementById("shopTitle").textContent =
+  $("shopTitle").textContent =
     `Shopping · est. $${total$.toFixed(2)}`;
 }
 
@@ -1768,17 +1758,17 @@ function makeShopItem(item) {
   return el;
 }
 
-document.getElementById("shopHideCheckedBtn").addEventListener("click", (e) => {
-  const sm = document.getElementById("shopMode");
+$("shopHideCheckedBtn").addEventListener("click", (e) => {
+  const sm = $("shopMode");
   sm.classList.toggle("hide-checked");
   e.target.textContent = sm.classList.contains("hide-checked")
     ? "👁️ Show all"
     : "👁️ Hide checked";
 });
 
-document.getElementById("shopFinishBtn").addEventListener("click", () => {
+$("shopFinishBtn").addEventListener("click", async () => {
   if (!shopState.checked.size) {
-    if (!confirm("Nothing checked. Exit anyway?")) return;
+    if (!await appConfirm("Nothing checked. Exit anyway?")) return;
     exitShopMode();
     return;
   }
@@ -1791,7 +1781,7 @@ document.getElementById("shopFinishBtn").addEventListener("click", () => {
   flash(`Trip complete! Marked ${n} item${n > 1 ? "s" : ""} as bought.`);
 });
 
-document.getElementById("shopShareBtn").addEventListener("click", async () => {
+$("shopShareBtn").addEventListener("click", async () => {
   const lines = ["🛒 Shopping list", ""];
   const groups = {};
   shopState.items.forEach((it) => {
@@ -1819,7 +1809,7 @@ document.getElementById("shopShareBtn").addEventListener("click", async () => {
     await navigator.clipboard.writeText(text);
     flash("List copied to clipboard.");
   } catch {
-    alert(text);
+    appAlert("Copy failed — here's the text:\n\n" + text);
   }
 });
 
@@ -1840,7 +1830,7 @@ function releaseWakeLock() {
 document.addEventListener("visibilitychange", () => {
   if (
     document.visibilityState === "visible" &&
-    !document.getElementById("shopMode").classList.contains("hidden")
+    !$("shopMode").classList.contains("hidden")
   ) {
     requestWakeLock();
   }
@@ -1876,7 +1866,7 @@ function escapeHtml(s) {
 
 let flashTimer = null;
 function flash(msg) {
-  let el = document.getElementById("flash");
+  let el = $("flash");
   if (!el) {
     el = document.createElement("div");
     el.id = "flash";
@@ -1961,9 +1951,9 @@ let undoTimer = null;
 // Compute the bottom offset so toasts always appear above the FAB
 // (or shop footer) without being occluded.
 function toastBottom() {
-  const shopMode = document.getElementById("shopMode");
+  const shopMode = $("shopMode");
   const shopOpen = shopMode && !shopMode.classList.contains("hidden");
-  const fab = document.getElementById("buildTripFab");
+  const fab = $("buildTripFab");
   const fabVisible = fab && !fab.classList.contains("hidden");
   if (shopOpen) {
     const footer = shopMode.querySelector(".shop-footer");
@@ -1978,7 +1968,7 @@ function toastBottom() {
 }
 
 function showUndoToast(message, onUndo) {
-  let el = document.getElementById("undoToast");
+  let el = $("undoToast");
   if (!el) {
     el = document.createElement("div");
     el.id = "undoToast";
@@ -1990,19 +1980,19 @@ function showUndoToast(message, onUndo) {
   el.style.bottom = toastBottom();
   el.classList.remove("hidden");
   clearTimeout(undoTimer);
-  const hide = () => el.classList.add("hidden");
+  const hideToast = () => el.classList.add("hidden");
   el.querySelector("button").onclick = () => {
-    hide();
+    hideToast();
     onUndo();
   };
-  undoTimer = setTimeout(hide, 5000);
+  undoTimer = setTimeout(hideToast, 5000);
 }
 
 // Generic action toast — same look as undo, but the button performs a
 // forward action (e.g. "Build trip") rather than reverting state.
 let actionToastTimer = null;
 function showActionToast(message, actionLabel, onAction) {
-  let el = document.getElementById("actionToast");
+  let el = $("actionToast");
   if (!el) {
     el = document.createElement("div");
     el.id = "actionToast";
@@ -2015,12 +2005,12 @@ function showActionToast(message, actionLabel, onAction) {
   el.style.bottom = toastBottom();
   el.classList.remove("hidden");
   clearTimeout(actionToastTimer);
-  const hide = () => el.classList.add("hidden");
+  const hideToast = () => el.classList.add("hidden");
   el.querySelector("button").onclick = () => {
-    hide();
+    hideToast();
     onAction();
   };
-  actionToastTimer = setTimeout(hide, 5000);
+  actionToastTimer = setTimeout(hideToast, 5000);
 }
 
 /* ---------------- Today screen ---------------- */
@@ -2060,7 +2050,7 @@ function renderToday() {
 
   // Replace the "Nothing urgent" placeholder with an actionable onboarding block.
   if (onboarding) {
-    const root = document.getElementById("actToday");
+    const root = $("actToday");
     root.innerHTML = `
       <div class="onboarding">
         <p><strong>Welcome to HouseCart!</strong> Try one of these to get going:</p>
@@ -2079,22 +2069,22 @@ function renderToday() {
     });
   }
 
-  document.getElementById("actCount").textContent = act.length
+  $("actCount").textContent = act.length
     ? `${act.length}`
     : "";
-  document.getElementById("weekCount").textContent = week.length
+  $("weekCount").textContent = week.length
     ? `${week.length}`
     : "";
-  document.getElementById("queueCount").textContent = queue.length
+  $("queueCount").textContent = queue.length
     ? `${queue.length} · $${queue.reduce((s, i) => s + (i.cost || 0), 0).toFixed(0)}`
     : "";
-  document.getElementById("tipsCount").textContent = tips.length
+  $("tipsCount").textContent = tips.length
     ? `${tips.length}`
     : "";
 }
 
 function renderTodayList(rootId, items, emptyMsg) {
-  const root = document.getElementById(rootId);
+  const root = $(rootId);
   root.innerHTML = "";
   if (!items.length) {
     root.innerHTML = `<p class="hint" style="margin:0">${emptyMsg}</p>`;
@@ -2149,7 +2139,7 @@ function renderTodayList(rootId, items, emptyMsg) {
 }
 
 function renderTodayTips(tips) {
-  const root = document.getElementById("todayTips");
+  const root = $("todayTips");
   root.innerHTML = "";
   if (!tips.length) {
     root.innerHTML = '<p class="hint" style="margin:0">No tips right now.</p>';
@@ -2169,8 +2159,7 @@ function renderTodayTips(tips) {
 }
 
 // "Build trip from queue" — skip preview, go straight to Shop Mode
-document
-  .getElementById("generateFromQueueBtn")
+$("generateFromQueueBtn")
   .addEventListener("click", () => {
     const queue = state.items.filter((i) => i.status === "active" && i.inTrip);
     if (!queue.length) {
@@ -2181,7 +2170,7 @@ document
   });
 
 // Floating action button: same direct-to-shop behavior.
-document.getElementById("buildTripFab")?.addEventListener("click", () => {
+$("buildTripFab")?.addEventListener("click", () => {
   const queue = state.items.filter((i) => i.status === "active" && i.inTrip);
   if (!queue.length) {
     flash("Trip queue is empty. Use + Trip on any item.");
@@ -2191,7 +2180,7 @@ document.getElementById("buildTripFab")?.addEventListener("click", () => {
 });
 
 // "Clear" — dequeue every item in one click (with undo).
-document.getElementById("clearQueueBtn")?.addEventListener("click", () => {
+$("clearQueueBtn")?.addEventListener("click", () => {
   const queued = state.items.filter((i) => i.inTrip);
   if (!queued.length) {
     flash("Trip queue is already empty.");
@@ -2217,25 +2206,25 @@ document.getElementById("clearQueueBtn")?.addEventListener("click", () => {
 });
 
 /* ---------------- Help modal ---------------- */
-const helpModal = document.getElementById("helpModal");
+const helpModal = $("helpModal");
 function openHelp() {
-  helpModal?.classList.remove("hidden");
+  show(helpModal);
 }
-document.getElementById("helpBtn")?.addEventListener("click", openHelp);
-document.getElementById("helpCloseBtn")?.addEventListener("click", () => {
-  helpModal?.classList.add("hidden");
+$("helpBtn")?.addEventListener("click", openHelp);
+$("helpCloseBtn")?.addEventListener("click", () => {
+  hide(helpModal);
 });
 
 /* ---------------- Voice add (Web Speech API) ---------------- */
 (function setupVoice() {
-  const btn = document.getElementById("voiceBtn");
-  const input = document.getElementById("quickAddInput");
+  const btn = $("voiceBtn");
+  const input = $("quickAddInput");
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) {
     btn.style.opacity = "0.4";
     btn.title = "Voice not supported in this browser (try Chrome/Edge)";
     btn.addEventListener("click", () =>
-      alert("Voice input requires Chrome or Edge."),
+      appAlert("Voice input requires Chrome or Edge."),
     );
     return;
   }
@@ -2295,11 +2284,11 @@ document.addEventListener("keydown", (e) => {
     case "f":
       e.preventDefault();
       // Prefer the always-visible global search.
-      document.getElementById("globalSearch")?.focus();
+      $("globalSearch")?.focus();
       break;
     case "n":
       e.preventDefault();
-      document.getElementById("quickAddInput").focus();
+      $("quickAddInput").focus();
       break;
     case "g":
       e.preventDefault();
@@ -2307,7 +2296,7 @@ document.addEventListener("keydown", (e) => {
       break;
     case "v":
       e.preventDefault();
-      document.getElementById("voiceBtn").click();
+      $("voiceBtn").click();
       break;
     case "?":
       e.preventDefault();
@@ -2807,12 +2796,12 @@ async function makeBackup({ silent = false } = {}) {
 
 function refreshBackupHint() {
   // Update the "Last backup: …" line in Settings (if rendered)
-  const lastEl = document.getElementById("lastBackupHint");
+  const lastEl = $("lastBackupHint");
   if (lastEl) {
     lastEl.textContent = `Last backup: ${formatRelative(state.lastBackup)}`;
   }
   // Update the Today-tab banner that nudges the user
-  const banner = document.getElementById("backupBanner");
+  const banner = $("backupBanner");
   if (!banner) return;
   const interval = getBackupIntervalDays();
   const due =
@@ -3049,7 +3038,7 @@ async function cloudPullOnLaunch() {
 }
 
 function updateSyncStatus(override) {
-  const el = document.getElementById("gistStatus");
+  const el = $("gistStatus");
   if (!el) return;
   if (override) {
     el.textContent = override;
@@ -3112,3 +3101,7 @@ if (navigator.storage && navigator.storage.persist) {
     })
     .catch(() => {});
 }
+
+
+
+
