@@ -1598,6 +1598,10 @@ function generateTrip(opts = {}) {
   }
 
   document.getElementById("tripModal").classList.remove("hidden");
+  if (opts.skipPreview && currentTrip.length) {
+    document.getElementById("tripModal").classList.add("hidden");
+    enterShopMode(currentTrip.map((t) => t.itemId));
+  }
 }
 
 document
@@ -2164,7 +2168,7 @@ function renderTodayTips(tips) {
   });
 }
 
-// "Build trip from queue" — opens trip modal showing only queued items
+// "Build trip from queue" — skip preview, go straight to Shop Mode
 document
   .getElementById("generateFromQueueBtn")
   .addEventListener("click", () => {
@@ -2173,23 +2177,17 @@ document
       flash("Trip queue is empty. Use + Trip on any item.");
       return;
     }
-    generateTrip({ onlyQueued: true });
+    generateTrip({ onlyQueued: true, skipPreview: true });
   });
 
-// "Shop now" was consolidated into the single "Start trip" flow — users now
-// always preview in the trip modal, then jump to Shop Mode from there.
-// (Handler intentionally removed; the trip modal's Shop Mode button is the
-// primary forward action.)
-
-// Floating action button: same behavior as "Build trip from queue" but
-// reachable from every tab without scrolling.
+// Floating action button: same direct-to-shop behavior.
 document.getElementById("buildTripFab")?.addEventListener("click", () => {
   const queue = state.items.filter((i) => i.status === "active" && i.inTrip);
   if (!queue.length) {
     flash("Trip queue is empty. Use + Trip on any item.");
     return;
   }
-  generateTrip({ onlyQueued: true });
+  generateTrip({ onlyQueued: true, skipPreview: true });
 });
 
 // "Clear" — dequeue every item in one click (with undo).
