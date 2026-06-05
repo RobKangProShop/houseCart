@@ -1143,7 +1143,7 @@ document
 // app reads it once, saves to localStorage, then strips it from the URL.
 document
   .getElementById("gistShareLinkBtn")
-  ?.addEventListener("click", async () => {
+  ?.addEventListener("click", () => {
     const { token, gistId } = getGistConfig();
     if (!token || !gistId) {
       return appAlert(
@@ -1151,27 +1151,150 @@ document
       );
     }
     const url = buildSetupLink({ token, gistId });
-    try {
-      await navigator.clipboard.writeText(url);
-      flash("🔗 Setup link copied. Send it to yourself privately.");
-    } catch {
-      // Older iOS / restricted contexts may block async clipboard — show the
-      // URL in a modal so the user can long-press to copy.
-      await appAlert(
-        "Couldn't auto-copy. Long-press to select and copy:\n\n" + url,
-      );
-    }
-    await appConfirm(
-      "⚠️ Treat this link like a password.\n\n" +
-        "Anyone with this link can read AND overwrite your HouseCart data " +
-        "(they can't access anything else in your GitHub account — the token " +
-        "is scoped to gists only).\n\n" +
-        "Send it via a private channel (Signal, iMessage, AirDrop). After " +
-        "the other device opens it, the link is consumed and HouseCart " +
-        "rewrites the URL to remove the secret.",
-      { okText: "Got it", cancelText: "" },
-    );
+    showSetupLinkModal(url);
   });
+
+function showSetupLinkModal(url) {
+  const overlay = document.createElement("div");
+  overlay.setAttribute("role", "dialog");
+  overlay.setAttribute("aria-modal", "true");
+  overlay.style.cssText =
+    "position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:600;" +
+    "display:flex;align-items:center;justify-content:center;padding:1rem;";
+  const box = document.createElement("div");
+  box.style.cssText =
+    "background:#0c1322;color:#e2e8f0;border:1px solid #334155;" +
+    "border-radius:12px;padding:1.2rem;max-width:520px;width:100%;" +
+    "box-shadow:0 10px 40px rgba(0,0,0,0.5);";
+
+  const h = document.createElement("h3");
+  h.textContent = "🔗 Setup link for another device";
+  h.style.cssText = "margin:0 0 0.6rem 0;font-size:1.1rem;";
+
+  const warn = document.createElement("p");
+  warn.style.cssText =
+    "margin:0 0 0.8rem 0;font-size:0.85rem;line-height:1.4;color:#fbbf24;";
+  warn.textContent =
+    "⚠️ Treat this link like a password. Anyone with it can read/overwrite your HouseCart data. Send via a private channel (AirDrop, iMessage, Signal). The link is consumed on first open.";
+
+  const ta = document.createElement("textarea");
+  ta.value = url;
+  ta.readOnly = true;
+  ta.rows = 4;
+  ta.style.cssText =
+    "width:100%;box-sizing:border-box;padding:0.6rem;border-radius:8px;" +
+    "background:#0a0f1e;color:#e2e8f0;border:1px solid #334155;" +
+    "font-family:monospace;font-size:0.78rem;word-break:break-all;" +
+    "resize:vertical;";
+
+  const row = document.createElement("div");
+  row.style.cssText =
+    "display:flex;gap:0.6rem;justify-content:flex-end;flex-wrap:wrap;margin-top:0.9rem;";
+
+  const finish = () => {
+    document.removeEventListener("keydown", onKey);
+    overlay.remove();
+  };
+  const onKey = (e) => {
+    if (e.key === "Escape") finish();
+  };
+  document.addEventListener("keydown", onKey);
+
+  const closeBtn = document.createElement("button");
+  closeBtn.type = "button";
+  closeBtn.className = "secondary";
+  closeBtn.textContent = "Done";
+  closeBtn.style.minHeight = "44px";
+  closeBtn.addEventListener("click", finish);
+
+  // Optional native share (iOS share sheet / Android share)
+  let shareBtn = null;
+  if (navigator.share) {
+    shareBtn = document.createElement("button");
+    shareBtn.type = "button";
+    shareBtn.textContent = "📤 Share";
+    shareBtn.style.minHeight = "44px";
+    shareBtn.addEventListener("click", async () => {
+      try {
+        await navigator.share({
+          title: "HouseCart setup link",
+          text: "HouseCart cloud sync setup (one-time link — keep private):",
+          url,
+        });
+      } catch (err) {
+        if (err?.name !== "AbortError") {
+          console.warn("share failed", err);
+        }
+      }
+    });
+  }
+
+  const copyBtn = document.createElement("button");
+  copyBtn.type = "button";
+  copyBtn.textContent = "📋 Copy link";
+  copyBtn.style.minHeight = "44px";
+  copyBtn.addEventListener("click", async () => {
+    const ok = await copyToClipboard(url, ta);
+    if (ok) {
+      copyBtn.textContent = "✓ Copied!";
+      setTimeout(() => (copyBtn.textContent = "📋 Copy link"), 1800);
+    } else {
+      copyBtn.textContent = "⚠️ Select & copy manually";
+      ta.focus();
+      ta.select();
+    }
+  });
+
+  row.appendChild(closeBtn);
+  if (shareBtn) row.appendChild(shareBtn);
+  row.appendChild(copyBtn);
+
+  box.appendChild(h);
+  box.appendChild(warn);
+  box.appendChild(ta);
+  box.appendChild(row);
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+
+  // Select the URL so iOS users can long-press → Copy if both auto-paths fail.
+  setTimeout(() => {
+    ta.focus();
+    ta.select();
+    ta.setSelectionRange(0, ta.value.length);
+  }, 50);
+}
+
+// Robust clipboard copy with fallbacks for iOS PWA / older Safari / restricted contexts.
+async function copyToClipboard(text, srcTextarea) {
+  // 1) Modern async clipboard API (requires secure context + user gesture)
+  if (navigator.clipboard && window.isSecureContext) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch (e) {
+      console.warn("clipboard.writeText failed, falling back", e);
+    }
+  }
+  // 2) Legacy execCommand path — still works in iOS PWA standalone mode.
+  try {
+    const ta = srcTextarea || document.createElement("textarea");
+    if (!srcTextarea) {
+      ta.value = text;
+      ta.style.cssText =
+        "position:fixed;top:-1000px;left:-1000px;opacity:0;";
+      document.body.appendChild(ta);
+    }
+    ta.focus();
+    ta.select();
+    ta.setSelectionRange(0, ta.value.length);
+    const ok = document.execCommand && document.execCommand("copy");
+    if (!srcTextarea) ta.remove();
+    if (ok) return true;
+  } catch (e) {
+    console.warn("execCommand copy failed", e);
+  }
+  return false;
+}
 
 function buildSetupLink({ token, gistId }) {
   // Lightweight obfuscation so the link doesn't read as obviously a token
