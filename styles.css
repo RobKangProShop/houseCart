@@ -40,7 +40,15 @@ header {
   flex-wrap: nowrap;
   gap: 0.75rem;
 }
-header h1 { margin: 0; font-size: 1.25rem; white-space: nowrap; }
+header h1 {
+  margin: 0; font-size: 1.25rem;
+  display: flex; align-items: center; gap: 0.5rem;
+  white-space: nowrap;
+}
+.brand-logo {
+  width: 32px; height: 32px; display: block; flex-shrink: 0;
+  border-radius: 6px;
+}
 .summary { display: flex; gap: 0.5rem; flex: 1; justify-content: flex-end; min-width: 0; }
 /* All three header tiles share the same shape; the trip tile additionally
    uses .summary-tile-trip + .has-queue for an accent state. */
