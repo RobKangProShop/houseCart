@@ -15,9 +15,11 @@
 // ── DOM helpers ────────────────────────────────────────────────────────────
 // Short aliases used throughout to reduce noise. `$` is getElementById;
 // `show`/`hide` toggle the "hidden" class on an element or an id string.
-const $ = (id) => $(id);
-const show = (el) => (typeof el === "string" ? $(el) : el)?.classList.remove("hidden");
-const hide = (el) => (typeof el === "string" ? $(el) : el)?.classList.add("hidden");
+const $ = (id) => document.getElementById(id);
+const show = (el) =>
+  (typeof el === "string" ? $(el) : el)?.classList.remove("hidden");
+const hide = (el) =>
+  (typeof el === "string" ? $(el) : el)?.classList.add("hidden");
 // ───────────────────────────────────────────────────────────────────────────
 
 const STORAGE_KEY = "housecart.v1";
@@ -220,8 +222,7 @@ document.querySelectorAll(".more-nav-item[data-tab]").forEach((t) => {
 document
   .querySelector(".more-sheet-backdrop")
   ?.addEventListener("click", closeMoreSheet);
-$("moreSheetCloseBtn")
-  ?.addEventListener("click", closeMoreSheet);
+$("moreSheetCloseBtn")?.addEventListener("click", closeMoreSheet);
 
 // Keyboard shortcut: Escape closes the sheet
 // (handled in the global keydown below, but also wire it here defensively)
@@ -495,9 +496,7 @@ const modal = $("modal");
 const form = $("itemForm");
 
 function openModal(item) {
-  $("modalTitle").textContent = item
-    ? "Edit item"
-    : "Add item";
+  $("modalTitle").textContent = item ? "Edit item" : "Add item";
   $("f-id").value = item?.id || "";
   $("f-name").value = item?.name || "";
   $("f-category").value = item?.category || "household";
@@ -512,8 +511,7 @@ function openModal(item) {
   $("deleteBtn").classList.toggle("hidden", !item);
   show(modal);
 }
-$("cancelBtn")
-  .addEventListener("click", () => hide(modal));
+$("cancelBtn").addEventListener("click", () => hide(modal));
 
 // Date quick-presets on the add/edit form. Tap a chip to fill the date input.
 document.querySelectorAll(".date-presets button").forEach((btn) => {
@@ -526,7 +524,7 @@ document.querySelectorAll(".date-presets button").forEach((btn) => {
 });
 $("deleteBtn").addEventListener("click", async () => {
   const id = $("f-id").value;
-  if (id && await appConfirm("Delete this item?")) {
+  if (id && (await appConfirm("Delete this item?"))) {
     state.items = state.items.filter((i) => i.id !== id);
     hide(modal);
     save();
@@ -773,9 +771,7 @@ function renderList() {
   const cat = $("filterCategory").value;
   const prio = $("filterPriority").value;
   // Search reads from the always-visible global search input.
-  const q = ($("globalSearch")?.value || "")
-    .trim()
-    .toLowerCase();
+  const q = ($("globalSearch")?.value || "").trim().toLowerCase();
   const items = state.items
     .filter((i) => i.status === "active" && i.category !== "goal" && !i.autopay)
     .filter((i) => !cat || i.category === cat)
@@ -1013,8 +1009,7 @@ function renderHistory() {
 ["filterCategory", "filterPriority"].forEach((id) =>
   $(id).addEventListener("input", renderList),
 );
-$("showAutopay")
-  .addEventListener("change", renderRecurring);
+$("showAutopay").addEventListener("change", renderRecurring);
 
 // Global search (header / quick-add bar): always-visible search that jumps
 // to the All Items tab and re-renders. Filter logic reads #globalSearch directly.
@@ -1067,7 +1062,11 @@ $("bannerBackupBtn")?.addEventListener("click", () => {
 $("bannerDismissBtn")?.addEventListener("click", async () => {
   // "Dismiss" = pretend a backup just happened so we wait another full interval
   // before nagging again. The data is NOT actually backed up — make this clear.
-  if (await appConfirm("Dismiss without backing up?\nThe reminder will return after the next interval.")) {
+  if (
+    await appConfirm(
+      "Dismiss without backing up?\nThe reminder will return after the next interval.",
+    )
+  ) {
     state.lastBackup = new Date().toISOString();
     persistState();
     refreshBackupHint();
@@ -1155,20 +1154,19 @@ $("gistPullBtn")?.addEventListener("click", async () => {
     updateSyncStatus();
   }
 });
-$("gistDisableBtn")
-  ?.addEventListener("click", async () => {
-    const ok = await appConfirm(
-      "Disconnect cloud sync? Your local data is unaffected.",
-      { okText: "Disconnect" },
-    );
-    if (!ok) return;
-    setGistConfig({ token: "", gistId: "" });
-    const t = $("gistToken");
-    const i = $("gistId");
-    if (t) t.value = "";
-    if (i) i.value = "";
-    flash("Cloud sync disconnected.");
-  });
+$("gistDisableBtn")?.addEventListener("click", async () => {
+  const ok = await appConfirm(
+    "Disconnect cloud sync? Your local data is unaffected.",
+    { okText: "Disconnect" },
+  );
+  if (!ok) return;
+  setGistConfig({ token: "", gistId: "" });
+  const t = $("gistToken");
+  const i = $("gistId");
+  if (t) t.value = "";
+  if (i) i.value = "";
+  flash("Cloud sync disconnected.");
+});
 
 // One-time setup link: encode current token + gist ID in URL hash and copy.
 // The hash fragment is NEVER sent to servers (so no logs, no analytics, no
@@ -1374,11 +1372,13 @@ $("saveKeyBtn").addEventListener("click", () => {
     flash("Key saved locally.");
   }
 });
-$("apiKey").value =
-  localStorage.getItem("housecart.apikey") || "";
+$("apiKey").value = localStorage.getItem("housecart.apikey") || "";
 
 $("seedBtn").addEventListener("click", async () => {
-  if (state.items.length && !await appConfirm("Append sample data to your current list?"))
+  if (
+    state.items.length &&
+    !(await appConfirm("Append sample data to your current list?"))
+  )
     return;
   state.items.push(...sampleData());
   save();
@@ -1636,7 +1636,10 @@ function exitShopMode() {
   renderSummary();
 }
 $("shopExitBtn").addEventListener("click", async () => {
-  if (shopState.checked.size && !await appConfirm("Exit without marking items as bought?"))
+  if (
+    shopState.checked.size &&
+    !(await appConfirm("Exit without marking items as bought?"))
+  )
     return;
   exitShopMode();
 });
@@ -1694,13 +1697,10 @@ function renderShopMode() {
   const done = shopState.checked.size;
   $("shopProgress").textContent =
     `${done} of ${total} item${total === 1 ? "" : "s"}`;
-  $("shopProgressFill").style.width = total
-    ? `${(done / total) * 100}%`
-    : "0%";
+  $("shopProgressFill").style.width = total ? `${(done / total) * 100}%` : "0%";
 
   const total$ = shopState.items.reduce((s, i) => s + (i.cost || 0), 0);
-  $("shopTitle").textContent =
-    `Shopping · est. $${total$.toFixed(2)}`;
+  $("shopTitle").textContent = `Shopping · est. $${total$.toFixed(2)}`;
 }
 
 function makeShopItem(item) {
@@ -1750,7 +1750,7 @@ $("shopHideCheckedBtn").addEventListener("click", (e) => {
 
 $("shopFinishBtn").addEventListener("click", async () => {
   if (!shopState.checked.size) {
-    if (!await appConfirm("Nothing checked. Exit anyway?")) return;
+    if (!(await appConfirm("Nothing checked. Exit anyway?"))) return;
     exitShopMode();
     return;
   }
@@ -2045,18 +2045,12 @@ function renderToday() {
     });
   }
 
-  $("actCount").textContent = act.length
-    ? `${act.length}`
-    : "";
-  $("weekCount").textContent = week.length
-    ? `${week.length}`
-    : "";
+  $("actCount").textContent = act.length ? `${act.length}` : "";
+  $("weekCount").textContent = week.length ? `${week.length}` : "";
   $("queueCount").textContent = queue.length
     ? `${queue.length} · $${queue.reduce((s, i) => s + (i.cost || 0), 0).toFixed(0)}`
     : "";
-  $("tipsCount").textContent = tips.length
-    ? `${tips.length}`
-    : "";
+  $("tipsCount").textContent = tips.length ? `${tips.length}` : "";
 }
 
 function renderTodayList(rootId, items, emptyMsg) {
@@ -2136,15 +2130,14 @@ function renderTodayTips(tips) {
 }
 
 // "Build trip from queue" — skip preview, go straight to Shop Mode
-$("generateFromQueueBtn")
-  .addEventListener("click", () => {
-    const queue = state.items.filter((i) => i.status === "active" && i.inTrip);
-    if (!queue.length) {
-      flash("Trip queue is empty. Use + Trip on any item.");
-      return;
-    }
-    generateTrip({ onlyQueued: true, skipPreview: true });
-  });
+$("generateFromQueueBtn").addEventListener("click", () => {
+  const queue = state.items.filter((i) => i.status === "active" && i.inTrip);
+  if (!queue.length) {
+    flash("Trip queue is empty. Use + Trip on any item.");
+    return;
+  }
+  generateTrip({ onlyQueued: true, skipPreview: true });
+});
 
 // Header tile "in next trip" — tap to go straight to Shop Mode from anywhere.
 $("tripQueueTile")?.addEventListener("click", () => {
@@ -3078,7 +3071,3 @@ if (navigator.storage && navigator.storage.persist) {
     })
     .catch(() => {});
 }
-
-
-
-
