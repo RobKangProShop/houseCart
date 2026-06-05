@@ -8,7 +8,7 @@
  *
  * Bump CACHE_VERSION on each release so old caches get cleaned up.
  */
-const CACHE_VERSION = "housecart-v7";
+const CACHE_VERSION = "housecart-v8";
 const APP_SHELL = [
   "./",
   "./index.html",

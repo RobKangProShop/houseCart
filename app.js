@@ -1090,6 +1090,9 @@ document.getElementById("gistPullBtn")?.addEventListener("click", async () => {
   const tokenInput = document.getElementById("gistToken")?.value.trim() || "";
   const idInput = document.getElementById("gistId")?.value.trim() || "";
   if (tokenInput || idInput) setGistConfig({ token: tokenInput, gistId: idInput });
+  // Reflect the normalized Gist ID back into the input (handles URL paste).
+  const idEl0 = document.getElementById("gistId");
+  if (idEl0) idEl0.value = getGistConfig().gistId || "";
   const { token, gistId } = getGistConfig();
   if (!token || !gistId)
     return appAlert("Enter both a GitHub token AND a Gist ID, then tap Pull.");
@@ -2633,13 +2636,29 @@ function getGistConfig() {
     gistId: localStorage.getItem(GIST_ID_KEY) || "",
   };
 }
+// Accept a raw ID, a full gist.github.com URL, or sloppy paste with whitespace.
+// gist.github.com URLs look like:
+//   https://gist.github.com/username/abc123def456...
+//   https://gist.github.com/abc123def456...
+function normalizeGistId(raw) {
+  if (!raw) return "";
+  let s = String(raw).trim();
+  if (s.includes("/")) {
+    // grab the last non-empty path segment, drop any #/? fragment
+    s = s.split(/[?#]/)[0].replace(/\/+$/, "");
+    s = s.split("/").filter(Boolean).pop() || "";
+  }
+  return s;
+}
 function setGistConfig({ token, gistId }) {
   if (token !== undefined) {
-    if (token) localStorage.setItem(GIST_TOKEN_KEY, token);
+    const t = (token || "").trim();
+    if (t) localStorage.setItem(GIST_TOKEN_KEY, t);
     else localStorage.removeItem(GIST_TOKEN_KEY);
   }
   if (gistId !== undefined) {
-    if (gistId) localStorage.setItem(GIST_ID_KEY, gistId);
+    const g = normalizeGistId(gistId);
+    if (g) localStorage.setItem(GIST_ID_KEY, g);
     else localStorage.removeItem(GIST_ID_KEY);
   }
   updateSyncStatus();
@@ -2660,6 +2679,22 @@ async function gistFetch(path, opts = {}) {
   });
   if (!r.ok) {
     const msg = await r.text().catch(() => "");
+    // Surface common failures with human-readable hints.
+    if (r.status === 404) {
+      throw new Error(
+        "Gist not found (404). Check that the Gist ID is correct AND that " +
+          "this token belongs to the same GitHub account that owns the gist.",
+      );
+    }
+    if (r.status === 401) {
+      throw new Error("Token rejected (401). It may be expired or mistyped.");
+    }
+    if (r.status === 403) {
+      throw new Error(
+        "Forbidden (403). Use a CLASSIC token with the `gist` scope — " +
+          "fine-grained PATs cannot access the Gist API.",
+      );
+    }
     throw new Error(`GitHub ${r.status}: ${msg.slice(0, 120) || r.statusText}`);
   }
   return r.json();
